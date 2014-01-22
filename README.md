@@ -8,6 +8,7 @@ Implementation of a webserver using Express (with Mustache templating) in Node.j
 First and foremost, clone the repository and change directories into it:
 
 `$ git clone https://github.com/ThatGeoGuy/ENGO500-Webserver.git`
+
 `$ cd ENGO500-Webserver/`
 
 To use this server, you need Node.js version 0.10 or newer installed. You should be able to re-produce or install the remaining dependencies locally using `npm install`. To start the server, just run: 
