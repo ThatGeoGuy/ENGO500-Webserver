@@ -41,6 +41,7 @@ app.use(function(error, req, res, next) {
 
 // index of site / registration of urls
 app.get('/', handlers.index);
+app.get('/layout', handlers.layout); 
 
 // start server
 http.createServer(app).listen(app.get('port'), function(){
