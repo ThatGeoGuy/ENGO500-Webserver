@@ -11,4 +11,7 @@ module.exports = {
 	index : function(req, res) {
 		res.render('index', { "title": "THIS IS A TITLE", });
 	},
+	layout : function(req, res) { 
+		res.render('storeLayout', {});
+	},
 }
