@@ -68,7 +68,7 @@ function addShelfContent(shelvesArray, shelfIndex) {
   $('#shelf' + shelfIndex + 'sections')
     .append("<h3>Attributes</h3>")
     .append("<div id=\"shelf" + shelfIndex + "attr\"></div>")
-    .append("<img class=\"editPencil\" src=\"img/pen.png\" onclick=editShelf()><\/img>");
+    .append("<img class=\"editPencil\" src=\"img/icons/pen.png\" onclick=editShelf()><\/img>");
   
   $('#shelf' + shelfIndex + 'attr')
     .append("<ul><li>Notes: " + shelves[shelfIndex].notes + "<\/li>" +
@@ -89,7 +89,7 @@ function addSectionContent(shelvesArray, shelfIndex, sectionIndex) {
             "<li>Display Color: " + shelves[shelfIndex].sections[sectionIndex].displayColor + "<\/li>" + 
             "<li>PIR URL: " + shelves[shelfIndex].sections[sectionIndex].pirURL + "<\/li>" + 
             "<li>Photo interrupter URL: " + shelves[shelfIndex].sections[sectionIndex].pintURL + "<\/li><\/ul>")
-    .append("<img class=\"editPencil\" src=\"img/pen.png\" onclick=editShelf()><\/img>");
+    .append("<img class=\"editPencil\" src=\"img/icons/pen.png\" onclick=editShelf()><\/img>");
     return;
 }
 
