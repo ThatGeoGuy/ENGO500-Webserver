@@ -22,12 +22,14 @@ in a new terminal window or pane. The server will then run on port 8000, so visi
 Files should be divided as follows: 
 
 * Templates: structured as <template-name>.html and placed in the views/ folder.
-* Static files: put in their respective folders in the public/ folder. For example, stylesheets can be found in public/css/. Keep in mind that these would be called by pages rendered on the server without the public/ prefix. E.g. `<link type='stylesheet' href='/css/bootstrap.min.js' />` 
+* Static files: put in their respective folders in the public/ folder. For example, stylesheets can be found in public/css/. Keep in mind that these would be called by pages rendered on the server without the public/ prefix. E.g. `<link type='stylesheet' href='/css/demo.css' />` 
 
-For reference on static files, the default bootstrap files have been added to this project. 
+For reference on static files, there are several demo files added to this project. 
 
 ## Acknowledgements
 
 * Developers of [Node.js](http://nodejs.org/)
 * Developers of [Express.js](http://expressjs.com/)
 * Developers of [Mustache-Express](https://npmjs.org/package/mustache-express) and by extention, [Mustache](http://mustache.github.io/)
+* Developers of [Bootstrap](http://getbootstrap.com)
+* Developers of [jQuery](http://jquery.com)
