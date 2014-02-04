@@ -15,6 +15,6 @@ module.exports = {
 		res.render('storeLayout', {});
 	},
 	progReport : function(req,res) { 
-		res.render('progress_report', {});
+		res.render('progressReport', {});
 	},
 }
