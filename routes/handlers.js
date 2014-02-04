@@ -14,4 +14,7 @@ module.exports = {
 	layout : function(req, res) { 
 		res.render('storeLayout', {});
 	},
+	progReport : function(req,res) { 
+		res.render('progress_report', {});
+	},
 }
