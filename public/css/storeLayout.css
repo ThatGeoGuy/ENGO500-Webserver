@@ -1,8 +1,8 @@
-#control {
+#mainLeft {
 	width: 30%;
 	float: left;
 }
-#view {
+#mainRight {
 	width: 68%;
 	float: right;
 }
@@ -30,6 +30,7 @@
   float: right;
   cursor: pointer;
 }
+
 * {margin:0; padding:0} 
 html {height: 100%}
 body {
@@ -74,4 +75,4 @@ h2, h3, h4 a, h5 a {padding: 3px 10px}
 
 h2, h3, h4, h5 {font-size: 1em}
 
-#main h2 {background-color: #f0f0f0}
+#mainLeft h2, #mainRight h2 {background-color: #f0f0f0}
