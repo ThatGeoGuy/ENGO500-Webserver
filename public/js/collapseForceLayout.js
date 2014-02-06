@@ -8,43 +8,78 @@
 
 var root = {};
 var rootURI = 'http://demo.student.geocens.ca:8080/SensorThings_V1.0/';
-document.addEventListener('DOMContentLoaded', function() {
-	var thingsURI = rootURI + 'Things';
-	d3.json(thingsURI, function(things) {
-		root.name = "Root Node";
-		root.children = [];
-
-		var thingArray = things["Things"];
-		for(var i = 0; i < thingArray.length; ++i) {
-			root.children[i] = {};
-			root.children[i].name = "Thing(" + i + ")"; 
-			root.children[i].children = [];
-		}
-		root.children.forEach(function(el1, i, array) {
-			d3.json(rootURI + thingArray[i]["Datastreams"]["Navigation-Link"], function(datastreams) {
-				if(datastreams !== null && datastreams !== undefined){
-				var dsArray = datastreams["Datastreams"];
-				if(dsArray !== undefined){
-				for(var j = 0; j < dsArray.length; ++j) {
-					array[i].children[j] = {};
-					array[i].children[j].name = "Datastream(" + j + ")";
-					array[i].children[j].children = [];
-				}
-
-				array[i].children.forEach(function(el2, j, array) {
-					d3.json(rootURI + dsArray[j]["Observations"]["Navigation-Link"], function(observations) {
-						var obArray = observations["Observations"];
-						for(var k = 0; k < obArray.length; ++k) {
-							array[j].children[k] = {};
-							array[j].children[k].name = "Observation(" + k + ")";
-							array[j].children[k].size = 3500;
-						}
-					});
-				});}}
+//document.addEventListener('DOMContentLoaded', function() {
+	/*
+	 * dsArray is an array that counts the amount of observations for each datastream.
+	 * ds[0] is the number of observations in datastream 1
+	 * ds[1] is the number of observations in datastream 2
+	 * and so on... 
+	 */
+	var dsArray = []; 
+	// Count number of observations to determine node size
+	function countObs() { 
+		d3.json(rootURI +'Observations', function(obs) { 
+			obs['Observations'].forEach(function(el, i, array) {
+				var dsURI = el['Datastream']['Navigation-Link'];
+				d3.json(rootURI + dsURI, function(datastream) { 
+					if(dsArray[datastream['ID'] - 1] === undefined) { 
+						dsArray[datastream['ID'] - 1] = 1; 
+					} else {
+						dsArray[datastream['ID'] - 1] += 1; 
+					}
+				});
 			});
 		});
-		update();
-	});
+	}
+
+	/* 
+	 * For each datastream that has an entry in dsArray, we are going to attach these to 
+	 * each 'Thing' and form our tree (name, children) 
+	 */
+	var thingArray = [];
+	// Organizes datastream children objects for each thing
+	function organizeDatastreams() {
+		d3.json(rootURI + 'Datastreams', function(datastreams) {
+			datastreams['Datastreams'].forEach(function(el, i, array) { 
+				if(dsArray[el['ID'] - 1] !== undefined) { 
+					var thingURI = el['Thing']['Navigation-Link'];
+					d3.json(rootURI + thingURI, function(thing) {
+						var child = {
+							"name": "Datastream(" + el['ID'] + ")",
+							"size": 700 * dsArray[el['ID'] - 1],
+							"description": el["Description"],
+						};
+						if(thingArray[thing['ID'] - 1] === undefined) { 
+							thingArray[thing['ID'] - 1] = [];
+						}
+						thingArray[thing['ID'] - 1].push(child);
+					});
+				}
+			});
+		});
+	}
+
+	/*
+	 * Sort the 'things' into the root node and populate the children nodes
+	 */
+	function createGraph() {
+		d3.json(rootURI + 'Things', function(things) {
+			root.name = 'Root Node';
+			root.children = [];
+
+			things['Things'].forEach(function(el, i, array) {
+				if(thingArray[el['ID'] - 1] !== undefined) {
+					var child = { 
+						"name": "Thing(" + el['ID'] + ")",
+						"children": thingArray[el['ID'] - 1],
+						"description": el['Description'],
+					};
+					root.children.push(child);
+				}
+			});
+			update();
+		});
+	}
 
 	var force = d3.layout.force()
 		.size([1000, 600])
@@ -140,4 +175,4 @@ document.addEventListener('DOMContentLoaded', function() {
 	  recurse(root);
 	  return nodes;
 	}	
-});
+//});
