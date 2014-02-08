@@ -1,75 +1,64 @@
 /* --------------- JQUERY --------------- */
-var shelfConfig;
-var shelfSectionConfig;
+var shelfConfig = {
+      active: false,
+      collapsible: true, 
+      autoHeight: false, 
+      animated: "swing",
+      heightStyle: "content"
+  };
+var shelfSectionConfig = {
+      active: false,
+      collapsible: true, 
+      autoHeight: false,
+      animated: "swing"
+  };
 
 var currentShelfNumber = 0;
 var currentShelfSectionNumber = 0;
 var shelves = [];
 
-var $control;
+var $parentAccordion;
 var $accordionTemplate;
 
 var $addSection;
 var $addShelf;
 
 $(document).ready(function () {
-  shelfConfig = {
-      collapsible: true, 
-      autoHeight: false, 
-      animated: "swing",
-      heightStyle: "content"
-  }
-
-  shelfSectionConfig = {
-      active:false,
-      collapsible: true, 
-      autoHeight: false,
-      animated: "swing"
-  }
-
-
-  $control = $("#control");
-  $accordionTemplate = $(".template").children();
+  $parentAccordion = $("#parentAccordion");
+  $parentAccordion.accordion(shelfConfig);
+  $accordionTemplate = $(".accordion").children();
 
   $addSection = $("#addSection");
   $addShelf = $("#addShelf");
 
   $addSection.hide();
 
-  $addShelf.on("click", function(e) {
+  $addShelf.on("click", function (e) {
     e.preventDefault();
 
-    var newShelfNumber = currentShelfNumber + 1;
-    addShelfToArray( newShelfNumber, shelves );
-    var $shelfElement = generateAccordion( newShelfNumber, "shelf", shelves );
+    // Create a shelf and append it to the parent accordion
+    addShelfToArray( shelves );
+    var $shelfElement = generateAccordion(currentShelfNumber, "shelf");
+    $parentAccordion.append($shelfElement);
+    $parentAccordion.accordion("refresh");
 
-    currentShelfNumber = newShelfNumber;
-
-    $control.append( $shelfElement );
+    drawShelves( shelves, scale );
 
     manageSectionButton();
-
-    var activeShelf = currentShelfNumber - 1
-    var $shelfSectionElement = generateAccordion( activeShelf, "section", shelves );
-    var $activeShelfElement = $control.children().last().find(".accordion-content");
-    $activeShelfElement.append( $shelfSectionElement );
-
-    // Call D3 draw function
-    drawShelves(shelves, scale);
+    currentShelfNumber++;
   });
 
-  $addSection.on("click", function(e) {
-    e.preventDefault();
+  $addSection.on("click", function (e) {
+      e.preventDefault();
 
-    var activeShelf = $('.accordion').accordion( "option", "active"); // +1 for 0 index
-    shelves[activeShelf].sections.push( new sections() );
-    var $shelfSectionElement = generateAccordion( activeShelf, "section", shelves );
-    var $activeShelfElement = $control.children().last().find(".accordion-content");
-    //var $activeShelfElement = $('.accordion').accordion( "option", "active").find(".accordion-content");
-    $activeShelfElement.append( $shelfSectionElement );
+      var activeShelfNumber = $parentAccordion.accordion("option", "active");
+      shelves[activeShelfNumber].sections.push( new sections() );
+      var $shelfSectionElement = generateAccordion(activeShelfNumber + 1, "section");
+      var idName = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
+      $(idName).append($shelfSectionElement);
+      $(idName).accordion("refresh");
 
-    // Call D3 draw function
-    drawSections(activeShelf, shelves, scale);
+      drawSections(activeShelfNumber, shelves, scale);
   });
 
 });
@@ -79,7 +68,6 @@ function shelf() {
   this.notes = "Some notes about the shelf";
   this.rpUUID = "#######";
   this.sections = [];
-  this.sections.push( new sections());
   return;
 }
 
@@ -96,23 +84,20 @@ function getAccordionTemplate() {
      return $accordionTemplate.clone();   
 }
 
-function generateAccordion( number, accordionType, shelvesArray ) {
+function generateAccordion( number, accordionType ) {
     var $accordion = getAccordionTemplate();
     var accordionTitle;
-    var $accordionContent;
+    var displayNumber = number + 1;
 
-    if ( accordionType == "shelf" ) {
-        accordionTitle = "Shelf " + number;
-        //$accordionContent = generateAccordionContent( number, "shelf", shelvesArray );
+    if (accordionType == "shelf") {
+        accordionTitle = "Shelf " + displayNumber;
     } else {
         accordionTitle = "Shelf Section";
-        //$accordionContent = generateAccordionContent( number, "section", shelvesArray );
     }
 
-    $accordion.find("h3").text( accordionTitle );
-    $accordion.find("div").append( $accordionContent );
+    $accordion.text(accordionTitle);
 
-    var $accordionWithEvents = attachAccordionEvents( $accordion, accordionType );
+    var $accordionWithEvents = attachAccordionEvents($accordion, accordionType);
 
     return $accordionWithEvents;
 }
@@ -136,118 +121,31 @@ function generateAccordionContent( number, accordionType, shelvesArray ) {
 }
 
 function attachAccordionEvents( $accordionElement, accordionType ) {
-    if ( accordionType == "shelf" ) {
-        $accordionElement.accordion( shelfConfig );
+    if (accordionType == "shelf") {
+        $accordionElement.accordion(shelfConfig);
     } else {
-        $accordionElement.accordion( shelfSectionConfig );    
+        $accordionElement.accordion(shelfSectionConfig);
     }
 
     return $accordionElement;
 }
 
+// change 
 function manageSectionButton() {
-    if ( $control.children().length > 0 ) {
+    if ( $parentAccordion.children().length > 0 ) {
         $addSection.show();
     } else {
         $addSection.hide();
     }
 }
 
-function addShelfToArray( number, shelvesArray) {
-  var shelfIndex = number - 1;
-
+function addShelfToArray( shelvesArray ) {
   shelvesArray.push( new shelf );
-  shelvesArray[shelfIndex].sections[0].nSections++;
   return;
 }
-
-// --- Old code for reference -- 
-
-/// var activeShelf = 0;
-/* Code to add new shelves and sections */
-/// var shelves = [];
-/// var shelfIndex = 0;
-//var sectionIndex = 0;
-///var testing;
-
-///$(document).ready(function() {
-  /* Add a shelf to the accordion */
-/*  $('#addShelf').click(function () {
-    addShelf(shelves);
-    createShelf(shelves, shelfIndex);
-    addShelfContent(shelves, shelfIndex);
-    var sectionIndex = 0;
-    createSection(shelves, shelfIndex, sectionIndex);
-    addSectionContent(shelves, shelfIndex, sectionIndex);
-    $('.accordion').accordion("refresh");
-    //$('.child-accordion').accordion("refresh");
-    shelfIndex++;
-    drawShelves(shelves, scale);
-  });
-
-  $('#addSection').click(function () {
-    activeShelf = $('.accordion').accordion( "option", "active");
-    activeShelf = activeShelf - 1; // Because the example section is still there, subtract 1 to get array index
-    shelves[activeShelf].sections.push(new sections());
-    createSection(shelves, activeShelf, shelves[activeShelf].sections.length - 1);
-    addSectionContent(shelves, activeShelf, shelves[activeShelf].sections.length - 1);
-    drawSections(activeShelf, shelves, scale);
-  });
-});
-*/
-
-/*
-function addShelf(shelvesArray) {
-  shelvesArray.push(new shelf);
-  shelvesArray[shelfIndex].sections[0].nSections++;
-  return;
-}
-
-function createShelf(shelvesArray, shelfIndex) {
-  $('.accordion')
-    .append("<h3 id=\"shelf" + shelfIndex + "\">" + shelves[shelfIndex].shelfName + "<\/h3>")
-    .append("<div id=\"shelf" + shelfIndex + "sections\" class=\"child-accordion\"><\/div>")
-  return;
-}
-
-function addShelfContent(shelvesArray, shelfIndex) {
-  $('#shelf' + shelfIndex + 'sections')
-    .append("<h3>Attributes</h3>")
-    .append("<div id=\"shelf" + shelfIndex + "attr\"></div>")
-    .append("<img class=\"editPencil\" src=\"img/icons/pen.png\" onclick=editShelf()><\/img>");
-  
-  $('#shelf' + shelfIndex + 'attr')
-    .append("<ul><li>Notes: " + shelves[shelfIndex].notes + "<\/li>" +
-            "<li>Raspberry Pi UUID: " + shelves[shelfIndex].rpUUID + "<\/li><\/ul>");
-    return;
-}
-
-function createSection(shelvesArray, shelfIndex, sectionIndex) {
-  $('#shelf' + shelfIndex + 'sections')
-    .append("<h3>" + shelves[shelfIndex].sections[sectionIndex].sectionName + "<\/h3>")
-    .append("<div id=\"shelf" + shelfIndex + "section" + sectionIndex + "\">Section div<\/div>");
-  return;
-}
-
-function addSectionContent(shelvesArray, shelfIndex, sectionIndex) {
-  $('#shelf' + shelfIndex + 'section' + sectionIndex)
-    .append("<ul><li>Display name: " + shelves[shelfIndex].sections[sectionIndex].displayId + "<\/li>" + 
-            "<li>Display Color: " + shelves[shelfIndex].sections[sectionIndex].displayColor + "<\/li>" + 
-            "<li>PIR URL: " + shelves[shelfIndex].sections[sectionIndex].pirURL + "<\/li>" + 
-            "<li>Photo interrupter URL: " + shelves[shelfIndex].sections[sectionIndex].pintURL + "<\/li><\/ul>")
-    .append("<img class=\"editPencil\" src=\"img/icons/pen.png\" onclick=editShelf()><\/img>");
-    return;
-}
-
-function editShelf() {
-  console.log("hi");
-}
-*/
-
 
 /* --------------- D3 --------------- */
 var svg;
-//var w = $('#d3').context.activeElement.clientWidth;
 // look at viewbox example here: http://jsfiddle.net/NKRPe/60/
 var w = 1000;
 var h = w*2/3;
@@ -296,16 +194,23 @@ function drawShelves(shelves, scale){
       return scale(i+1);
     });
 
-  drawSections(shelves.length - 1, shelves, scale);
+  //drawSections(shelves.length - 1, shelves, scale);
   // update domain of scale... use +1 to offset 0 index, and +1 to add one
-  scale.domain([0,shelves.length + 1 + 1]);
+  //scale.domain([0,shelves.length + 1 + 1]);
   // if size of all elements is bigger than w, scale w
 }
 
 function drawSections(shelfIndex, shelves, scale){
+
   var sectionScale = d3.scale.linear()
-    .domain([0, shelves[shelfIndex].sections.length + 2])
+    .domain([0, shelves[shelfIndex].sections.length + 1])
     .range([0,500]);
+
+  svg.transition().selectAll(".section")
+    .duration(500)
+    .attr("height", function(d,i) {
+      return sectionScale(i+1);
+    });
 
   // Add new sections
   svg.selectAll(".section").data(shelves[shelfIndex].sections).enter().append("rect")
@@ -324,7 +229,7 @@ function drawSections(shelfIndex, shelves, scale){
     .attr("fill", "#2E6E9E")
     .attr("class", "section")
     .attr("opacity", 0)
-    .transition().delay(500)
+    .transition()
     .attr("opacity", 1)
     .duration(500);
   }
