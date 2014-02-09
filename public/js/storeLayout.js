@@ -38,9 +38,27 @@ $(document).ready(function () {
 
     // Create a shelf and append it to the parent accordion
     addShelfToArray( shelves );
-    var $shelfElement = generateAccordion(currentShelfNumber, "shelf");
+    var $shelfElement = generateAccordion( currentShelfNumber, "shelf" );
     $parentAccordion.append($shelfElement);
     $parentAccordion.accordion("refresh");
+
+    // Apply name to shelf
+    var header = "#ui-accordion-parentAccordion-header-" + currentShelfNumber;
+    var shelfDisplayNumber = currentShelfNumber + 1;
+    $(header).text("Shelf " + shelfDisplayNumber);
+
+    // Create an accordion element to hold shelf attributes
+    var $attributesElement = generateAccordion(currentShelfNumber + 1, "section");
+    var panel = "#ui-accordion-parentAccordion-panel-" + currentShelfNumber;
+    $(panel).append($attributesElement);
+    $(panel).accordion("refresh");
+
+    // Apply content to shelf attribute accordion element
+    var $attributesContent = generateAccordionContent(currentShelfNumber, "shelf", shelves);
+    var attrHeader = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-header-0";
+    $(attrHeader).text("Shelf attributes");
+    var attrContent = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-panel-0";
+    $(attrContent).append($attributesContent);
 
     drawShelves( shelves, scale );
 
@@ -53,10 +71,22 @@ $(document).ready(function () {
 
       var activeShelfNumber = $parentAccordion.accordion("option", "active");
       shelves[activeShelfNumber].sections.push( new sections() );
+      var newSectionNumber = shelves[activeShelfNumber].sections.length;
+
+      // Create a section and append it to a shelf
       var $shelfSectionElement = generateAccordion(activeShelfNumber + 1, "section");
-      var idName = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
-      $(idName).append($shelfSectionElement);
-      $(idName).accordion("refresh");
+      var panel = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
+      $(panel).append($shelfSectionElement);
+      $(panel).accordion("refresh");
+
+      // Apply a name to the section
+      var innerHeader = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-header-" + newSectionNumber;
+      $(innerHeader).text("Section " + newSectionNumber);
+
+      // Apply content to the section
+      var $contents = generateAccordionContent( activeShelfNumber, "section", shelves );
+      var innerPanel = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-" + newSectionNumber;
+      $(innerPanel).append($contents);
 
       drawSections(activeShelfNumber, shelves, scale);
   });
@@ -86,37 +116,23 @@ function getAccordionTemplate() {
 
 function generateAccordion( number, accordionType ) {
     var $accordion = getAccordionTemplate();
-    var accordionTitle;
-    var displayNumber = number + 1;
-
-    if (accordionType == "shelf") {
-        accordionTitle = "Shelf " + displayNumber;
-    } else {
-        accordionTitle = "Shelf Section";
-    }
-
-    $accordion.text(accordionTitle);
-
-    var $accordionWithEvents = attachAccordionEvents($accordion, accordionType);
-
+    var $accordionWithEvents = attachAccordionEvents( $accordion, accordionType );
     return $accordionWithEvents;
 }
 
-function generateAccordionContent( number, accordionType, shelvesArray ) {
-    var $accordionContent = document.createElement("ul");
-    var shelfIndex = number - 1;
-    var sectionIndex = shelvesArray[shelfIndex].sections.length - 1;
-
+function generateAccordionContent( shelfIndex, accordionType, shelvesArray ) {
+    var $accordionContent = $(document.createElement("ul"));
     if ( accordionType == "shelf" ) {
-      $accordionContent.append("<li>").text("Notes: " + shelvesArray[shelfIndex].notes);
-      $accordionContent.append("<li>").text("RasPi UUID: " + shelvesArray[shelfIndex].rpUUID);
-    } else {
-      $accordionContent.append("<li>").text("ID: " + shelvesArray[shelfIndex].sections[sectionIndex].displayId);
-      $accordionContent.append("<li>").text("ID: " + shelvesArray[shelfIndex].sections[sectionIndex].displayColor);
-      $accordionContent.append("<li>").text("ID: " + shelvesArray[shelfIndex].sections[sectionIndex].pirURL);
-      $accordionContent.append("<li>").text("ID: " + shelvesArray[shelfIndex].sections[sectionIndex].pintURL);
+      $accordionContent.append($("<li>").append("Notes: " + shelvesArray[shelfIndex].notes));
+      $accordionContent.append($("<li>").append("RasPi UUID: " + shelvesArray[shelfIndex].rpUUID));
+    }else {
+      var sectionIndex = shelvesArray[shelfIndex].sections.length - 1;
+      $accordionContent.append($("<li>").append("ID: " + shelvesArray[shelfIndex].sections[sectionIndex].displayId));
+      $accordionContent.append($("<li>").append("Color: " + shelvesArray[shelfIndex].sections[sectionIndex].displayColor));
+      $accordionContent.append($("<li>").append("Motion sensor: " + shelvesArray[shelfIndex].sections[sectionIndex].pirURL));
+      $accordionContent.append($("<li>").append("Stock sensor: " + shelvesArray[shelfIndex].sections[sectionIndex].pintURL));
     }
-
+    
     return $accordionContent;
 }
 
@@ -196,7 +212,7 @@ function drawShelves(shelves, scale){
 
   //drawSections(shelves.length - 1, shelves, scale);
   // update domain of scale... use +1 to offset 0 index, and +1 to add one
-  //scale.domain([0,shelves.length + 1 + 1]);
+  scale.domain([0,shelves.length + 1 + 1]);
   // if size of all elements is bigger than w, scale w
 }
 
