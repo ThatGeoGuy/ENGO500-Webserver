@@ -1,14 +1,24 @@
-#control {
+ul {
+	font-weight: bold;
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+.input {
+	font-family: courier;
+	font-weight: normal;
+}
+#mainLeft {
 	width: 30%;
 	float: left;
 }
-#view {
+#mainRight {
 	width: 68%;
 	float: right;
 }
 .button {
-  display: inline-block;
-  height: 20px;
+	display: inline-block;
+	height: 20px;
 	background-color: #2e6e9e;
 	font-family: arial;
 	font-weight: bold;
@@ -20,46 +30,47 @@
 }
 #addShelf {
 	float: right;
-  width: 80px;
+	width: 80px;
 }
 #addSection {
-  float: right;
-  width: 80px;
+	float: right;
+	width: 80px;
 }
 .editPencil {
-  float: right;
-  cursor: pointer;
+	float: right;
+	cursor: pointer;
 }
+
 * {margin:0; padding:0} 
 html {height: 100%}
 body {
-  min-width: 480px;
-  width: 100%;
-  height: 101%;
-  background: #fff;
-  color: #333;
-  font: 76%/1.6 verdana,geneva,lucida,'lucida grande',arial,helvetica,sans-serif;
-  text-align: center
+	min-width: 480px;
+	width: 100%;
+	height: 101%;
+	background: #fff;
+	color: #333;
+	font: 76%/1.6 verdana,geneva,lucida,'lucida grande',arial,helvetica,sans-serif;
+	text-align: center
 }
 #wrapper {
-  margin-bottom: 30px;
-  padding: 10px 2.5%;
-  border-top: 0.1em solid #ccc;
-  background: #fff;
-  text-align: left;
-  overflow: hidden
+	margin-bottom: 30px;
+	padding: 10px 2.5%;
+	border-top: 0.1em solid #ccc;
+	background: #fff;
+	text-align: left;
+	overflow: hidden
 }
 
 #container {
-  float: left;
-  width: 100%;
-  padding: 0 0 1em;
-  position: relative;
-  min-height: 0
+	float: left;
+	width: 100%;
+	padding: 0 0 1em;
+	position: relative;
+	min-height: 0
 }
 #main {
-  position: relative; 
-  min-height: 0
+	position: relative; 
+	min-height: 0
 }
 p {margin: 0 10px 1em}
 .strong{font-weight: 700}
@@ -74,4 +85,4 @@ h2, h3, h4 a, h5 a {padding: 3px 10px}
 
 h2, h3, h4, h5 {font-size: 1em}
 
-#main h2 {background-color: #f0f0f0}
+#mainLeft h2, #mainRight h2 {background-color: #f0f0f0}
