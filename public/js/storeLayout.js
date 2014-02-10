@@ -223,11 +223,12 @@ var svg;
 var w = 1000;
 var h = w*2/3;
 var strokePadding = 1;
+var domainSize = 1;
 
 /* Scale needs its domain to size the current of shelves + blank aisles, so update
 the scale domain anytime a shelf is added */
 var scale = d3.scale.linear()
-  .domain([0,2])
+  .domain([0,1])
   .rangeRound([0,w]);
 
 $(document).ready( function() {
@@ -237,17 +238,22 @@ $(document).ready( function() {
 });
 
 function drawShelves(shelves, scale){
+  domainSize++;
+  scale.domain([0,domainSize])
   // Move exisiting shelves and sections
   svg.transition().selectAll(".shelf")
       .duration(500)
       .attr("x", function(d,i) {
         return scale(i+1) - 25;
       });
-  svg.transition().selectAll(".section")
-      .duration(500)
-      .attr("x", function(d,i) {
-        return scale(i+1) - 20;
-      });
+  for(var i=0; i<shelves.length; i++){
+    var selector = ".s" + i;
+    svg.transition().selectAll(selector)
+    .duration(500)
+    .attr("x", function() {
+      return scale(i+1) - 20;
+    });
+  }
 
   // Add the newest shelf
   svg.selectAll(".shelf").data(shelves).enter().append("rect")
@@ -263,30 +269,30 @@ function drawShelves(shelves, scale){
     .attr("class", "shelf")
     .transition()
     .duration(500)
-        .attr("x", function(d,i) {
+    .attr("x", function(d,i) {
       return scale(i+1);
     });
-
-  //drawSections(shelves.length - 1, shelves, scale);
-  // update domain of scale... use +1 to offset 0 index, and +1 to add one
-  scale.domain([0,shelves.length + 1 + 1]);
-  // if size of all elements is bigger than w, scale w
 }
 
 function drawSections(shelfIndex, shelves, scale){
 
-  var sectionScale = d3.scale.linear()
-    .domain([0, shelves[shelfIndex].sections.length + 1])
-    .range([0,500]);
+  var selector = ".s" + shelfIndex;
 
-  svg.transition().selectAll(".section")
+  var sectionScale = d3.scale.linear()
+    .domain([0, shelves[shelfIndex].sections.length])
+    .range([0,495]);
+
+  svg.transition().selectAll(selector)
     .duration(500)
+    .attr("y", function(d,i) {
+      return sectionScale(i) + 5;
+    })
     .attr("height", function(d,i) {
-      return sectionScale(i+1);
+      return 495/shelves[shelfIndex].sections.length - 5;
     });
 
   // Add new sections
-  svg.selectAll(".section").data(shelves[shelfIndex].sections).enter().append("rect")
+  svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
     .attr("x", function() {
       return scale(shelfIndex+1) + 5;
     })
@@ -294,23 +300,15 @@ function drawSections(shelfIndex, shelves, scale){
       return sectionScale(i) + 5;
     })
     .attr("width", 40) //probably need to change the sizes
-    .attr("height", function() {
-      return 500/shelves[shelfIndex].sections.length - 10;
+    .attr("height", function(d,i) {
+      return 495/shelves[shelfIndex].sections.length - 5;
     })
     .attr("rx", 5)
     .attr("ry", 5)
     .attr("fill", "#2E6E9E")
-    .attr("class", "section")
+    .attr("class", "section s" + shelfIndex)
     .attr("opacity", 0)
     .transition()
     .attr("opacity", 1)
     .duration(500);
-  }
-
-/* Starting at 0, every entry 1,4,7,10 (+3) needs to be blank
-make a function that maps a blank aisle if the index requires it
-function drawAisleSpace() {
-  var rect = svg.selectAll("rect").enter().append("rect")
-  .attr(
 }
-*/
