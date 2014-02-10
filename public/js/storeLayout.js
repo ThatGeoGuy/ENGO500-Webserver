@@ -24,6 +24,7 @@ var $addSection;
 var $addShelf;
 
 $(document).ready(function () {
+
   $parentAccordion = $("#parentAccordion");
   $parentAccordion.accordion(shelfConfig);
   $accordionTemplate = $(".accordion").children();
@@ -33,6 +34,7 @@ $(document).ready(function () {
 
   $addSection.hide();
 
+  // Add Shelf Button
   $addShelf.on("click", function (e) {
     e.preventDefault();
 
@@ -60,12 +62,14 @@ $(document).ready(function () {
     var attrContent = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-panel-0";
     $(attrContent).append($attributesContent);
 
+    addEditable( shelves, "shelf" );
     drawShelves( shelves, scale );
 
     manageSectionButton();
     currentShelfNumber++;
   });
 
+  // Add section button
   $addSection.on("click", function (e) {
       e.preventDefault();
 
@@ -88,15 +92,68 @@ $(document).ready(function () {
       var innerPanel = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-" + newSectionNumber;
       $(innerPanel).append($contents);
 
-      drawSections(activeShelfNumber, shelves, scale);
+      addEditable( shelves, "section" );
+      drawSections( activeShelfNumber, shelves, scale );
   });
 
 });
 
+function addEditable( shelves, type ) {
+  if( type == "shelf" ){
+
+    $(".notes").editable( function(value, settings) {
+      var shelfIndex = $parentAccordion.accordion("option", "active");
+      shelves[shelfIndex].notes = value;
+      return value;
+    });
+
+    $(".uuid").editable( function(value, settings) {
+      var shelfIndex = $parentAccordion.accordion("option", "active");
+      shelves[shelfIndex].rpUUID = value;
+      return value;
+    });
+
+  } else {
+
+    $(".id").editable( function(value, settings) {
+      var shelfIndex = $parentAccordion.accordion("option", "active");
+      var panel = "#ui-accordion-parentAccordion-panel-" + shelfIndex;
+      var sectionIndex = $(panel).accordion("option", "active");
+      shelves[shelfIndex].sections[sectionIndex - 1].displayID = value;
+      return value;
+    });
+
+    $(".color").editable( function(value, settings) {
+      var shelfIndex = $parentAccordion.accordion("option", "active");
+      var panel = "#ui-accordion-parentAccordion-panel-" + shelfIndex;
+      var sectionIndex = $(panel).accordion("option", "active");
+      shelves[shelfIndex].sections[sectionIndex - 1].displayColor = value;
+      return value;
+    });
+
+    $(".motion").editable( function(value, settings) {
+      var shelfIndex = $parentAccordion.accordion("option", "active");
+      var panel = "#ui-accordion-parentAccordion-panel-" + shelfIndex;
+      var sectionIndex = $(panel).accordion("option", "active");
+      shelves[shelfIndex].sections[sectionIndex - 1].pirURL = value;
+      return value;
+    });
+
+    $(".stock").editable( function(value, settings) {
+      var shelfIndex = $parentAccordion.accordion("option", "active");
+      var panel = "#ui-accordion-parentAccordion-panel-" + shelfIndex;
+      var sectionIndex = $(panel).accordion("option", "active");
+      shelves[shelfIndex].sections[sectionIndex - 1].pintURL = value;
+      return value;
+    });  
+
+  }
+}
+
 function shelf() {
-  this.shelfName = "Default shelf name";
-  this.notes = "Some notes about the shelf";
-  this.rpUUID = "#######";
+  this.shelfName;
+  this.notes;
+  this.rpUUID;
   this.sections = [];
   return;
 }
@@ -123,14 +180,14 @@ function generateAccordion( number, accordionType ) {
 function generateAccordionContent( shelfIndex, accordionType, shelvesArray ) {
     var $accordionContent = $(document.createElement("ul"));
     if ( accordionType == "shelf" ) {
-      $accordionContent.append($("<li>").append("Notes: " + shelvesArray[shelfIndex].notes));
-      $accordionContent.append($("<li>").append("RasPi UUID: " + shelvesArray[shelfIndex].rpUUID));
+      $accordionContent.append($("<li>").append("Notes: <span class=\"input notes\"" + shelvesArray[shelfIndex].notes + "</span>"));
+      $accordionContent.append($("<li>").append("RasPi UUID: <span class=\"input uuid\"" + shelvesArray[shelfIndex].rpUUID + "</span>"));
     }else {
       var sectionIndex = shelvesArray[shelfIndex].sections.length - 1;
-      $accordionContent.append($("<li>").append("ID: " + shelvesArray[shelfIndex].sections[sectionIndex].displayId));
-      $accordionContent.append($("<li>").append("Color: " + shelvesArray[shelfIndex].sections[sectionIndex].displayColor));
-      $accordionContent.append($("<li>").append("Motion sensor: " + shelvesArray[shelfIndex].sections[sectionIndex].pirURL));
-      $accordionContent.append($("<li>").append("Stock sensor: " + shelvesArray[shelfIndex].sections[sectionIndex].pintURL));
+      $accordionContent.append($("<li>").append("ID: <span class=\"input id\"" + shelvesArray[shelfIndex].sections[sectionIndex].displayId + "</span>"));
+      $accordionContent.append($("<li>").append("Color: <span class=\"input color\"" + shelvesArray[shelfIndex].sections[sectionIndex].displayColor + "</span>"));
+      $accordionContent.append($("<li>").append("Motion sensor: <span class=\"input motion\"" + shelvesArray[shelfIndex].sections[sectionIndex].pirURL + "</span>"));
+      $accordionContent.append($("<li>").append("Stock sensor: <span class=\"input stock\"" + shelvesArray[shelfIndex].sections[sectionIndex].pintURL + "</span>"));
     }
     
     return $accordionContent;
