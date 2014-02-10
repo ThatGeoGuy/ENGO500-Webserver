@@ -8,7 +8,7 @@
 
 var root = {};
 var rootURI = 'http://demo.student.geocens.ca:8080/SensorThings_V1.0/';
-//document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
 	/*
 	 * dsArray is an array that counts the amount of observations for each datastream.
 	 * ds[0] is the number of observations in datastream 1
@@ -18,18 +18,40 @@ var rootURI = 'http://demo.student.geocens.ca:8080/SensorThings_V1.0/';
 	var dsArray = []; 
 	// Count number of observations to determine node size
 	function countObs() { 
-		d3.json(rootURI +'Observations', function(obs) { 
-			obs['Observations'].forEach(function(el, i, array) {
-				var dsURI = el['Datastream']['Navigation-Link'];
-				d3.json(rootURI + dsURI, function(datastream) { 
-					if(dsArray[datastream['ID'] - 1] === undefined) { 
-						dsArray[datastream['ID'] - 1] = 1; 
-					} else {
-						dsArray[datastream['ID'] - 1] += 1; 
+		var req = new XMLHttpRequest();
+		req.open('GET', rootURI + 'Observations', false);
+
+		req.onload = function() { 
+			if(this.status >= 200 && this.status < 400) {
+				var obs = JSON.parse(this.response);
+				obs['Observations'].forEach(function(el, i, array) {
+					var dsURI = el['Datastream']['Navigation-Link'];
+					var req = new XMLHttpRequest();
+					req.open('GET', rootURI + dsURI, false);
+					
+					req.onload = function() {
+						if(this.status >= 200 && this.status < 400) {
+							var datastream = JSON.parse(this.response);
+							if(dsArray[datastream['ID'] - 1] === undefined) { 
+								dsArray[datastream['ID'] - 1] = 1; 
+							} else {
+								dsArray[datastream['ID'] - 1] += 1; 
+							}
+						} else { 
+							console.log("Server Error: " + this.status);
+						}
 					}
+
+					req.error = function() { console.log('Unspecified error connecting to server'); }
+					req.send();
 				});
-			});
-		});
+			} else { 
+				console.log("Server Error: " + this.status); 
+			}
+		}
+		
+		req.error = function() { console.log('Unspecified error connecting to server'); }
+		req.send();
 	}
 
 	/* 
@@ -39,46 +61,76 @@ var rootURI = 'http://demo.student.geocens.ca:8080/SensorThings_V1.0/';
 	var thingArray = [];
 	// Organizes datastream children objects for each thing
 	function organizeDatastreams() {
-		d3.json(rootURI + 'Datastreams', function(datastreams) {
-			datastreams['Datastreams'].forEach(function(el, i, array) { 
-				if(dsArray[el['ID'] - 1] !== undefined) { 
-					var thingURI = el['Thing']['Navigation-Link'];
-					d3.json(rootURI + thingURI, function(thing) {
-						var child = {
-							"name": "Datastream(" + el['ID'] + ")",
-							"size": 700 * dsArray[el['ID'] - 1],
-							"description": el["Description"],
-						};
-						if(thingArray[thing['ID'] - 1] === undefined) { 
-							thingArray[thing['ID'] - 1] = [];
+		var req = new XMLHttpRequest();
+		req.open('GET', rootURI + 'Datastreams', false);
+
+		req.onload = function() {
+			if(this.status >= 200 && this.status < 400) {
+				var datastreams = JSON.parse(this.response);
+				datastreams['Datastreams'].forEach(function(el, i, array) { 
+					if(dsArray[el['ID'] - 1] !== undefined) { 
+						var thingURI = el['Thing']['Navigation-Link'];
+						var req = new XMLHttpRequest();
+						req.open('GET', rootURI + thingURI, false);
+
+						req.onload = function() { 
+							if(this.status >= 200 && this.status < 400) {
+								var thing = JSON.parse(this.response);
+								var child = {
+									"name": "Datastream(" + el['ID'] + ")",
+									"size": 700 * dsArray[el['ID'] - 1],
+									"description": el["Description"],
+								};
+								if(thingArray[thing['ID'] - 1] === undefined) { 
+									thingArray[thing['ID'] - 1] = [];
+								}
+								thingArray[thing['ID'] - 1].push(child);
+							} else {
+							}
 						}
-						thingArray[thing['ID'] - 1].push(child);
-					});
-				}
-			});
-		});
+
+						req.onerror = function() { console.log('Unspecified error with server'); }
+						req.send();
+					}
+				});
+			} else { 
+			}
+		}
+
+		req.onerror = function() { console.log('Unspecified error with server'); }
+		req.send();
 	}
 
 	/*
 	 * Sort the 'things' into the root node and populate the children nodes
 	 */
 	function createGraph() {
-		d3.json(rootURI + 'Things', function(things) {
-			root.name = 'Root Node';
-			root.children = [];
+		var req = new XMLHttpRequest();
+		req.open('GET', rootURI + 'Things', false);
+		
+		req.onload = function() {
+			if(this.status >= 200 && this.status < 400) { 
+				var things = JSON.parse(this.response);
+				root.name = 'Root Node';
+				root.children = [];
 
-			things['Things'].forEach(function(el, i, array) {
-				if(thingArray[el['ID'] - 1] !== undefined) {
-					var child = { 
-						"name": "Thing(" + el['ID'] + ")",
-						"children": thingArray[el['ID'] - 1],
-						"description": el['Description'],
-					};
-					root.children.push(child);
-				}
-			});
-			update();
-		});
+				things['Things'].forEach(function(el, i, array) {
+					if(thingArray[el['ID'] - 1] !== undefined) {
+						var child = { 
+							"name": "Thing(" + el['ID'] + ")",
+							"children": thingArray[el['ID'] - 1],
+							"description": el['Description'],
+						};
+						root.children.push(child);
+					}
+				});
+				update();
+			} else {
+			}
+		}
+		
+		req.onerror = function() { console.log('Unspecified error with server'); } 
+		req.send();
 	}
 
 	var force = d3.layout.force()
@@ -175,4 +227,8 @@ var rootURI = 'http://demo.student.geocens.ca:8080/SensorThings_V1.0/';
 	  recurse(root);
 	  return nodes;
 	}	
-//});
+
+	countObs();
+	organizeDatastreams();
+	createGraph();
+});
