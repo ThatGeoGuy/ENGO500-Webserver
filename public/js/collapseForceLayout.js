@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
 								var child = {
 									"name": "Datastream(" + el['ID'] + ")",
 									"type": "datastream",
-									"size": 900 * dsArray[el['ID'] - 1].length,
+									"size": 500 * dsArray[el['ID'] - 1].length,
 									"description": el["Description"],
 									"observations": dsArray[el['ID'] - 1],
 									"colour": "#fbb117",
@@ -141,8 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		req.send();
 	}
 
+	/*
+	 * This function will display the parameters on the right hand of the
+	 * slide based on which node you click. 
+	 */
 	function displayParams(d) {
-		click(d);
 		var info = d3.select('#node-info'); 
 		var htmlString = "";
 		info.html(); 
@@ -217,9 +220,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		  .attr("class", "node")
 		  .attr("cx", function(d) { return d.x; })
 		  .attr("cy", function(d) { return d.y; })
-		  .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; })
+		  .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 9.0; })
 		  .style("fill", color)
-		  .on("click", displayParams)
+		  .on("click", click)
 		  .call(force.drag);
 	}
 
@@ -240,16 +243,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Toggle children on click.
 	function click(d) {
-	  if (!d3.event.defaultPrevented) {
-		if (d.children) {
-		  d._children = d.children;
-		  d.children = null;
-		} else {
-		  d.children = d._children;
-		  d._children = null;
+		if (!d3.event.defaultPrevented) {
+		  if (d.children) {
+			d._children = d.children;
+			d.children = null;
+		  } else {
+			d.children = d._children;
+			d._children = null;
+		  }
+		  update();
 		}
-		update();
-	  }
+		displayParams(d);
 	}
 
 	// Returns a list of all nodes under the root.
