@@ -41,6 +41,10 @@ hr {
 	border: none;
 }
 
+ol { 
+	margin-left: 1.0em;
+}
+
 ul { 
 	margin-top: 0;
 }
@@ -72,6 +76,14 @@ th {
 
 td { 
 	border: solid 1px;
+}
+
+iframe { 
+	width: 112%; 
+	height: 120%; 
+	margin-left: -70px; 
+	padding-left: 0; 
+	overflow-y: hidden;
 }
 
 .left-col { 
@@ -113,6 +125,11 @@ td {
 .big { 
 	font-size: 128px; 
 }
+
+.tiny { 
+	font-size: 28px;
+}
+
 .title { 
 	padding: 160px 80px;
 	font-size: 90px;
@@ -146,3 +163,16 @@ screen and (max-device-width: 1024px) {
     display: block;
   }
 }
+
+.node {
+  cursor: pointer;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
+

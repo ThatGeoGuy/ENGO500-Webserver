@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	var dsArray = []; 
 	// Count number of observations to determine node size
-	function countObs() { 
+	function collectObs() { 
 		var req = new XMLHttpRequest();
 		req.open('GET', rootURI + 'Observations', false);
 
@@ -33,10 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
 						if(this.status >= 200 && this.status < 400) {
 							var datastream = JSON.parse(this.response);
 							if(dsArray[datastream['ID'] - 1] === undefined) { 
-								dsArray[datastream['ID'] - 1] = 1; 
-							} else {
-								dsArray[datastream['ID'] - 1] += 1; 
+								dsArray[datastream['ID'] - 1] = []; 
 							}
+								dsArray[datastream['ID'] - 1].push(el);
 						} else { 
 							console.log("Server Error: " + this.status);
 						}
@@ -78,8 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
 								var thing = JSON.parse(this.response);
 								var child = {
 									"name": "Datastream(" + el['ID'] + ")",
-									"size": 700 * dsArray[el['ID'] - 1],
+									"type": "datastream",
+									"size": 900 * dsArray[el['ID'] - 1].length,
 									"description": el["Description"],
+									"observations": dsArray[el['ID'] - 1],
+									"colour": "#fbb117",
 								};
 								if(thingArray[thing['ID'] - 1] === undefined) { 
 									thingArray[thing['ID'] - 1] = [];
@@ -112,14 +114,20 @@ document.addEventListener('DOMContentLoaded', function() {
 			if(this.status >= 200 && this.status < 400) { 
 				var things = JSON.parse(this.response);
 				root.name = 'Root Node';
+				root.type = 'root';
 				root.children = [];
+				root.description = "This is the root node of the graph. Click on any of the other nodes to see information about them here!"; 
+				root.colour = "#ff0000";
 
 				things['Things'].forEach(function(el, i, array) {
 					if(thingArray[el['ID'] - 1] !== undefined) {
 						var child = { 
 							"name": "Thing(" + el['ID'] + ")",
+							"type": "thing", 
 							"children": thingArray[el['ID'] - 1],
 							"description": el['Description'],
+							"altColour": "#0000a0",
+							"colour": "#38acec",
 						};
 						root.children.push(child);
 					}
@@ -133,13 +141,43 @@ document.addEventListener('DOMContentLoaded', function() {
 		req.send();
 	}
 
+	function displayParams(d) {
+		click(d);
+		var info = d3.select('#node-info'); 
+		var htmlString = "";
+		info.html(); 
+
+		htmlString += "<h3>" + d.name + "</h3>"; 
+		htmlString += "<p class='tiny'><strong>Description:</strong> " + d.description + "</p>";
+		if(d.type === "datastream") {
+			htmlString += "<p class='tiny'><strong>The last five observations are: </strong></p>";
+			htmlString += "<ol class='tiny'>";
+			
+			var obs; 
+			for(var i = (d.observations.length -1); i > (d.observations.length - 6); --i) {
+				obs = d.observations[i]["ResultValue"]; 
+				htmlString += "<li>" + parseFloat(obs).toPrecision(6) + "</li>";
+			}
+			htmlString += "</ol>"
+		} else if(d.type === "thing") { 
+			htmlString += "<p class='tiny'><strong>The first five datastreams associated with this 'Thing' are: </strong></p>";
+			htmlString += "<ul class='tiny'>";
+
+			for(var i = 0; i < 5; ++i) {
+				htmlString += "<li><em>" + d.children[i]["name"] + "</em> - "; 
+				htmlString += d.children[i]["description"] + "</li>";	
+			}
+		} 
+		info.html(htmlString); 
+	}
+
 	var force = d3.layout.force()
-		.size([1000, 600])
+		.size([500, 700])
 		.on("tick", tick);
 
-	var svg = d3.select("body").append("svg")
-		.attr("width", 1000)
-		.attr("height", 600);
+	var svg = d3.select("#force-graph").append("svg")
+		.attr("width", 500)
+		.attr("height", 700);
 
 	var link = svg.selectAll(".link"),
 		node = svg.selectAll(".node");
@@ -181,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		  .attr("cy", function(d) { return d.y; })
 		  .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; })
 		  .style("fill", color)
-		  .on("click", click)
+		  .on("click", displayParams)
 		  .call(force.drag);
 	}
 
@@ -197,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Color leaf nodes orange, and packages white or blue.
 	function color(d) {
-	  return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+	  return d._children ? d.altColour : d.colour;
 	}
 
 	// Toggle children on click.
@@ -228,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	  return nodes;
 	}	
 
-	countObs();
+	collectObs();
 	organizeDatastreams();
 	createGraph();
 });
