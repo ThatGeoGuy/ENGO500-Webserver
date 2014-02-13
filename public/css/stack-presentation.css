@@ -1,6 +1,6 @@
 body {
   background: #929292;
-  font-family: "Helvetica Neue";
+  font-family: "Century Gothic";
   margin: auto;
   width: 1280px;
 }
@@ -58,6 +58,10 @@ ul.authors {
 
 ul.authors li { 
 	list-style-type: none;
+}
+
+li {
+	margin-top: 5px;
 }
 
 table {

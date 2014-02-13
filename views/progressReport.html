@@ -19,27 +19,28 @@
 		</section>
 		
 		<section> 
-			<h1>Internet of Things</h1>
+			<h1>Project Objective</h1>
 			<hr>
 			<ul>
-				<li>We sought out to create a "smart shelf" using the Internet of Things</li>
-				<li>The purpose of the shelf system is to be capable of identifying whether somebody is standing in front of a shelf and if the shelf area is stocked.</li>
-				<li>Thus our project can be broken down into two broader categories: developing our shelf system prototype and creating our website to interface with the sensors.</li>
+				<li>Creating a "smart shelf"</li>
+				<ul>
+					<li>Concept of the "Internet of Things" (IoT)</li>
+					<li>Compatible with OGC IoT SensorThings API</li>
+					<li>Open source</li>
+				</ul>
+				<li>Location Aware Shelf System (LASS)</li>
+				<ul>
+					<li>Tracks customer movement</li>
+					<li>Notifies personnel of empty shelves</li>
 			</ul>
 		</section>
 
 		<section>
 			<h1>Recall</h1>
 			<hr>
-			<div class='left-col'>
-				<ul>
-					<li>The Internet of Things (IoT) is a system where we can interact with sensors and everyday objects remotely.</li>
-					<li>We are developing our system to be compatible with the OGC IoT SensorThings API.</li>
-				</ul>
-			</div>
-			<div class='right-col'>
-				<img src='/img/use-case-prototype.png' width=100% />
-				<img src='/img/use-case-website.png' width=100% />
+			<div class='centered'>
+				<img src='/img/use-case-prototype.png' width=75% height=35%/>
+				<img src='/img/use-case-website.png' width=80% height=55%/>
 			</div>
 		</section>
 		
@@ -48,10 +49,42 @@
 		</section>
 		
 		<section>
-			<h1>Prototype</h1>
+			<h1>Current sensor setup</h1>
 			<hr>
 			<div class='centered'>
 				<img src='/img/prototype.jpg' height=90% />
+			</div>
+		</section>
+		
+		<section> 
+			<h1>Progress so far</h1>
+			<hr>
+			<ul>
+				<li>Python code for data collection</li>
+				<ul>
+					<li>Using GPIO pin libraries, reads voltages from PIR </li>
+				</ul>
+				<br>
+				<li>Python code for sensor simulation</li>
+				<ul>
+					<li>Facilitated testing of connection with data service</li>
+				</ul>
+			</ul>
+		</section>
+		
+		<section>
+			<h1>OGC IoT Data Model</h1>
+			<hr>
+			<div class='centered'>
+				<img src='/img/DataModel.png' height=90% />
+			</div>
+		</section>
+	
+		<section>
+			<h1>Our Data Model</h1>
+			<hr>
+			<div class='centered'>
+				<img src='/img/DataModel_specialized.png' height=90% />
 			</div>
 		</section>
 
