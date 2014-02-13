@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		htmlString += "<h3>" + d.name + "</h3>"; 
 		htmlString += "<p class='tiny'><strong>Description:</strong> " + d.description + "</p>";
-		if(d.type === "datastream") {
+		if(d.type === "datastream" && d.children !== null) {
 			htmlString += "<p class='tiny'><strong>The last five observations are: </strong></p>";
 			htmlString += "<ol class='tiny'>";
 			
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				htmlString += "<li>" + parseFloat(obs).toPrecision(6) + "</li>";
 			}
 			htmlString += "</ol>"
-		} else if(d.type === "thing") { 
+		} else if(d.type === "thing" && d.children !== null) { 
 			htmlString += "<p class='tiny'><strong>The first five datastreams associated with this 'Thing' are: </strong></p>";
 			htmlString += "<ul class='tiny'>";
 

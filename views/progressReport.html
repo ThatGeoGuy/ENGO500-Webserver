@@ -140,19 +140,27 @@
 				</tr>
 				<tr>
 					<td>Sensors shipping late</td>
-					<td>Low Impact, we already have one sensor working.</td>
+					<td>Medium Impact, we already have one sensor working, we just need to extend what we have.</td>
+				</tr>
+				<tr>
+					<td>Sensors too sensitive / not working as expected</td>
+					<td>Potentially Large Impact, time will need to be invested in calibrating them properly.</td>
+				</tr>
+				<tr>
+					<td>Robustness of sensor connectivity.</td>
+					<td>Low Impact, expected use case is sensors on ethernet or private network, should be client's responsibility to some extent.</td>
 				</tr>
 				<tr>
 					<td>User system not (fully) implemented</td>
-					<td>Low Impact, single user system is viable to demo functionality.</td>
+					<td>Low to Medium Impact, single user system is viable to demo functionality.</td>
 				</tr>
 				<tr>
 					<td>Usability testing of website not completed</td>
 					<td>Low Impact (testing of code occurs during development).</td>
 				</tr>
 				<tr> 
-					<td></td>
-					<td></td>
+					<td>Downloading large amounts of data from server.</td>
+					<td>Medium to High Impact. We have yet to be able to download and handle large requests to the server since it refreshes so often. We may find that there are issues with accessing and handling large volumes of data in real time.</td>
 				</tr>
 			</table>
 		</section>
