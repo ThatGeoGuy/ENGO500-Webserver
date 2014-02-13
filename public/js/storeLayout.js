@@ -220,7 +220,7 @@ function addShelfToArray( shelvesArray ) {
 /* --------------- D3 --------------- */
 var svg;
 // look at viewbox example here: http://jsfiddle.net/NKRPe/60/
-var w = 1000;
+var w = 808;
 var h = w*2/3;
 var strokePadding = 1;
 var domainSize = 1;
