@@ -152,21 +152,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		htmlString += "<h3>" + d.name + "</h3>"; 
 		htmlString += "<p class='tiny'><strong>Description:</strong> " + d.description + "</p>";
-		if(d.type === "datastream" && d.children !== null) {
-			htmlString += "<p class='tiny'><strong>The last five observations are: </strong></p>";
+		if(d.type === "datastream") {
+			htmlString += "<p class='tiny'><strong>The first five observations associated with this datastream are: </strong></p>";
 			htmlString += "<ol class='tiny'>";
 			
 			var obs; 
-			for(var i = (d.observations.length -1); i > (d.observations.length - 6); --i) {
+			for(var i = 0; i < d.observations.length; ++i) {
+				if(i >= 5)
+					break;
+
 				obs = d.observations[i]["ResultValue"]; 
 				htmlString += "<li>" + parseFloat(obs).toPrecision(6) + "</li>";
 			}
 			htmlString += "</ol>"
-		} else if(d.type === "thing" && d.children !== null) { 
+		} else if(d.type === "thing") { 
 			htmlString += "<p class='tiny'><strong>The first five datastreams associated with this 'Thing' are: </strong></p>";
 			htmlString += "<ul class='tiny'>";
 
-			for(var i = 0; i < 5; ++i) {
+			for(var i = 0; i < d.children.length; ++i) {
+				if(i >= 5)
+					break;
+
 				htmlString += "<li><em>" + d.children[i]["name"] + "</em> - "; 
 				htmlString += d.children[i]["description"] + "</li>";	
 			}
