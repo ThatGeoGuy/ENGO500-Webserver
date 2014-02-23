@@ -9,12 +9,12 @@
 module.exports = { 
 	// Index function for root of site
 	index : function(req, res) {
-		res.render('index', { "title": "THIS IS A TITLE", });
+		var template = {
+			"title": "THIS IS A TITLE"
+		};
+		res.render('base', template);
 	},
 	layout : function(req, res) { 
 		res.render('storeLayout', {});
-	},
-	progReport : function(req,res) { 
-		res.render('progressReport', {});
-	},
+	}
 }
