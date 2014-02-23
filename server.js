@@ -8,7 +8,6 @@
 var express = require('express'),
 	handlers = require('./routes/handlers'),
 	nunjucks = require('nunjucks'),
-	http = require('http'),
 	path = require('path');
 
 var app = express();
@@ -43,10 +42,13 @@ app.use(function(error, req, res, next) {
 	res.send('500: Internal Server Error', 500);
 });
 
-// index of site / registration of urls
-app.get('/',        handlers.index);
-app.get('/login',   handlers.login);
-app.get('/layout',  handlers.layout);
+// GET requests to pages
+app.get('/',          handlers.index);
+app.get('/login',     handlers.login);
+app.get('/layout',    handlers.layout);
+app.get('/register',  handlers.register);
+
+// POST requests to specific pages
 
 // start server
 app.listen(app.get('port'), function(){

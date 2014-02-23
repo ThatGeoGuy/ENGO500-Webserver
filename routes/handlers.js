@@ -26,16 +26,6 @@ module.exports = {
 		res.render('index.html', templateParameters);
 	},
 
-	login : function(req, res) {
-		var templateParameters = { 
-			// Metadata options
-			"title" : "LASS - Login",
-			"authors" : authors,
-			"description" : false,
-		};
-		res.render('login.html', templateParameters);
-	}, 
-
 	layout : function(req, res) { 
 		var templateParameters = { 
 			// Metadata options
@@ -46,5 +36,25 @@ module.exports = {
 			"navStatic" : true,
 		};
 		res.render('layoutConfig.html', templateParameters);
-	}
+	},
+
+	login : function(req, res) {
+		var templateParameters = { 
+			// Metadata options
+			"title" : "LASS - Login",
+			"authors" : authors,
+			"description" : false,
+		};
+		res.render('login.html', templateParameters);
+	}, 
+
+	register : function(req, res) { 
+		var templateParameters = {
+			// Metadata options
+			"title" : "LASS - Register",
+			"authors" : authors,
+			"description" : false,
+		};
+		res.render('register.html', templateParameters);
+	},
 }
