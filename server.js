@@ -7,17 +7,21 @@
  */
 var express = require('express'),
 	handlers = require('./routes/handlers'),
-	mustacheExpress = require('mustache-express'),
+	nunjucks = require('nunjucks'),
 	http = require('http'),
 	path = require('path');
 
 var app = express();
-app.engine('html', mustacheExpress());
+
+// Templating using nunjucks
+nunjucks.configure('views', {
+	autoescape : true,
+	express    : app,
+});
 
 // all environments
 app.set('port', process.env.PORT || 8000);
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'html');
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
@@ -44,6 +48,6 @@ app.get('/', handlers.index);
 app.get('/layout', handlers.layout); 
 
 // start server
-http.createServer(app).listen(app.get('port'), function(){
+app.listen(app.get('port'), function(){
 	console.log('Listening on port 8000. Go to http://127.0.0.1:8000/');
 });
