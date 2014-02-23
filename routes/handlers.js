@@ -12,9 +12,14 @@ module.exports = {
 		var template = {
 			"title": "THIS IS A TITLE"
 		};
-		res.render('base', template);
+		res.render('base.html', template);
 	},
 	layout : function(req, res) { 
-		res.render('storeLayout', {});
+		var template = { 
+			"title": "LASS - Store Layout Editor",
+			"authors": ["Ben Trodd", "Jeremy Steward"],
+			"description": "Edit and create a virtual layout of your store!"
+		}
+		res.render('layoutConfig.html', template);
 	}
 }
