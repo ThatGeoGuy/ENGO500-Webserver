@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block CSS %}
+<link rel='stylesheet' type='text/css' href='/css/login.css'>
+{% endblock %} 
+
+{% block CONTENT %}
+<div class='container'> 
+	<form class='form-signin' method='post' role='form'>
+		<h2 class='form-signin-heading'>Log In</h2>
+		<input type='email' name='email' class='form-control' placeholder='Email address' required autofocus />
+		<input type='password' name='pwd' class='form-control' placeholder='Password' required />
+		<label class='checkbox'>
+			<input type='checkbox' value='remember-me'/>Remember me
+		</label>
+		<button class='btn btn-lg btn-primary btn-block' type='submit'>Sign in</button>
+		<br>
+		<a href='/register'>Don't have an account?</a>
+	</form>
+</div>
+{% endblock %} 
+
+{% block SCRIPTS %}
+{% endblock %} 
