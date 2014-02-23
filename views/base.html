@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<title>{{title}}</title>
+		<meta charset='utf-8'> 
+		<meta name='description' content='{{description}}'>
+		{{#authors}}
+		<meta name='author' content='{{name}}'>
+		{{/authors}}
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		<link rel='stylesheet' type='text/css' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css' />
+		<link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css'>
+		<link rel='stylesheet' type='text/css' href='/css/base.css'>
+	</head>
+	<body>
+		
+
+		{{! --- SCRIPTS --- }}
+		<script type='text/javascript' src='https://code.jquery.com/jquery-2.1.0.min.js'></script>
+		<script type='text/javascript' src='https://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js'></script>
+		{{#includeD3}}
+		<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js'></script>
+		{{/includeD3}}
+
+		<script type='text/javascript' src='http://code.jquery.com/ui/1.10.4/jquery-ui.min.js'></script>
+		<script type='text/javascript' src='http://www.appelsiini.net/download/jquery.jeditable.mini.js'></script>
+	</body>
+</html>
