@@ -44,8 +44,9 @@ app.use(function(error, req, res, next) {
 });
 
 // index of site / registration of urls
-app.get('/', handlers.index);
-app.get('/layout', handlers.layout); 
+app.get('/',        handlers.index);
+app.get('/login',   handlers.login);
+app.get('/layout',  handlers.layout);
 
 // start server
 app.listen(app.get('port'), function(){
