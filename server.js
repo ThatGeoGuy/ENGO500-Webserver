@@ -8,7 +8,6 @@
 var express = require('express'),
 	handlers = require('./routes/handlers'),
 	nunjucks = require('nunjucks'),
-	http = require('http'),
 	path = require('path');
 
 var app = express();

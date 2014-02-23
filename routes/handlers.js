@@ -26,6 +26,18 @@ module.exports = {
 		res.render('index.html', templateParameters);
 	},
 
+	layout : function(req, res) { 
+		var templateParameters = { 
+			// Metadata options
+			"title"       : "LASS - Store Layout Editor",
+			"authors"     : authors,
+			"description" : "Create and edit a virtual layout of your store!",
+			// Navbar options
+			"navStatic" : true,
+		};
+		res.render('layoutConfig.html', templateParameters);
+	},
+
 	login : function(req, res) {
 		var templateParameters = { 
 			// Metadata options
@@ -53,4 +65,13 @@ module.exports = {
 		res.render('viewStore.html', template);
 	}
 	
+	register : function(req, res) { 
+		var templateParameters = {
+			// Metadata options
+			"title" : "LASS - Register",
+			"authors" : authors,
+			"description" : false,
+		};
+		res.render('register.html', templateParameters);
+	},
 }
