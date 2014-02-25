@@ -35,6 +35,7 @@ $(document).ready(function () {
 	$deleteButton = $('#deleteButton');
 
 	$addSection.hide();
+	$deleteButton.hide();
 
 	// Add Shelf Button
 	$addShelf.on("click", function (e) {
@@ -109,11 +110,29 @@ $(document).ready(function () {
 		
 		if(activeShelfNumber !== false){
 			if(activeSectionNumber !== false){
-				// delete section
-				console.log("Delete section: " + activeSectionNumber);
+				// Delete section
+				if( activeSectionNumber == 0){
+					console.log("Shelf attributes section cannot be removed");
+				} else {
+					// Remove section from array
+					shelves[activeShelfNumber].sections.splice(activeSectionNumber - 1, 1);
+
+					// Remove accordion element
+					var headerToRemove = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-header-" + activeSectionNumber;
+					var panelToRemove = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-" + activeSectionNumber;
+					$(panelToRemove).remove();
+					$(headerToRemove).remove();
+				}
 			} else {
-				// delete shelf
-				console.log("Delete shelf: " + activeShelfNumber);
+				// Delete shelf
+				shelves.splice(activeShelfNumber, 1);
+
+				// Remove accordion element
+				var headerToRemove = "#ui-accordion-parentAccordion-header-" + activeShelfNumber;
+				var panelToRemove = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
+				$(panelToRemove).remove();
+				$(headerToRemove).remove();
+				currentShelfNumber--;
 			}
 		}
 	});
@@ -228,7 +247,8 @@ function attachAccordionEvents( $accordionElement, accordionType ) {
 // change 
 function manageSectionButton() {
 		if ( $parentAccordion.children().length > 0 ) {
-				$addSection.show();
+				$addSection.fadeIn("slow");
+				$deleteButton.fadeIn("slow");
 		} else {
 				$addSection.hide();
 		}
