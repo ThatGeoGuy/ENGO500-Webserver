@@ -309,6 +309,7 @@ function drawSections(shelfIndex, shelves, scale){
 		.attr("class", "section s" + shelfIndex)
 		.attr("opacity", 0)
 		// Open accordion associated with this element when clicked
+		.attr("cursor", "pointer")
 		.on("click", function(d, i) {
 			$parentAccordion.accordion('option', 'active', shelfIndex);
 			var panel = "#ui-accordion-parentAccordion-panel-" + shelfIndex;
