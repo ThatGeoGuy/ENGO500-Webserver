@@ -22,6 +22,7 @@ var $accordionTemplate;
 
 var $addSection;
 var $addShelf;
+var $deleteButton;
 
 $(document).ready(function () {
 
@@ -31,6 +32,7 @@ $(document).ready(function () {
 
 	$addSection = $("#addSection");
 	$addShelf = $("#addShelf");
+	$deleteButton = $('#deleteButton');
 
 	$addSection.hide();
 
@@ -66,6 +68,7 @@ $(document).ready(function () {
 		drawShelves( shelves, scale );
 
 		manageSectionButton();
+
 		currentShelfNumber++;
 	});
 
@@ -94,6 +97,25 @@ $(document).ready(function () {
 
 			addEditable( shelves, "section" );
 			drawSections( activeShelfNumber, shelves, scale );
+	});
+
+	// Delete button
+	$deleteButton.on("click", function(e) {
+		e.preventDefault();
+
+		var activeShelfNumber = $parentAccordion.accordion("option", "active");
+		var activePanel = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
+		var activeSectionNumber = $(activePanel).accordion("option", "active");
+		
+		if(activeShelfNumber !== false){
+			if(activeSectionNumber !== false){
+				// delete section
+				console.log("Delete section: " + activeSectionNumber);
+			} else {
+				// delete shelf
+				console.log("Delete shelf: " + activeShelfNumber);
+			}
+		}
 	});
 
 });

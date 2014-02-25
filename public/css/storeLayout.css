@@ -18,7 +18,7 @@ ul {
 }
 .button {
 	display: inline-block;
-	height: 20px;
+	height: 15px;
 	background-color: #2e6e9e;
 	font-family: arial;
 	font-weight: bold;
@@ -30,11 +30,15 @@ ul {
 }
 #addShelf {
 	float: right;
-	width: 80px;
+	width: 60px;
 }
 #addSection {
 	float: right;
-	width: 80px;
+	width: 75px;
+}
+#deleteButton {
+	float: left;
+	width: 20;
 }
 .editPencil {
 	float: right;
