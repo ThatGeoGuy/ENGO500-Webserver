@@ -244,14 +244,14 @@ function drawShelves(shelves, scale){
 	svg.transition().selectAll(".shelf")
 			.duration(500)
 			.attr("x", function(d,i) {
-				return scale(i+1) - 25;
+				return scale(i+1);
 			});
 	for(var i=0; i<shelves.length; i++){
 		var selector = ".s" + i;
 		svg.transition().selectAll(selector)
 		.duration(500)
 		.attr("x", function() {
-			return scale(i+1) - 20;
+			return scale(i+1) + 5;
 		});
 	}
 
