@@ -89,5 +89,5 @@ require('./routes/postHandlers')(app,passport);
  * Start server
  */
 app.listen(app.get('port'), function(){
-	console.log('Listening on port ' + app.get('port') + '. Go to http://127.0.0.1:8000/');
+	console.log('Listening on port ' + app.get('port') + '. Go to http://127.0.0.1:' + app.get('port') + '/');
 });
