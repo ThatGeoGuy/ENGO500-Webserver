@@ -27,7 +27,7 @@
 					<a href = "#" class = "dropdown-toggle" data-toggle = "dropdown">Get help <b class = "caret"></b></a>
 					<ul class = "dropdown-menu">
 						<li><a href = "#">FAQ</a></li>
-						<li><a href = "#">Contact us</a></li>
+						<li><a href = "#contact" data-toggle="modal">Contact us</a></li>
 						
 					</ul>
 					
@@ -40,6 +40,19 @@
 	
 </div>
 
+<div class="container">
+	
+	<div class = "jumbotron text-center">
+		<h1>Welcome!</h1>
+		<p>In this little description I would probably tell you briefly what our product is and does</p>
+		<a class = "btn btn-default">See how it works</a>
+	</div>
+	
+</div>
+
+
+
+
 <div class = "navbar navbar-inverse navbar-fixed-bottom">
 	
 	<div class = "container">
@@ -50,8 +63,28 @@
 </div>
 
 
+<div class = "modal fade" id = "contact" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1> Contact us</h1>
+			</div>
+			<div class = "modal-body">
+				<p>You can contact us ... actually I don't know how you would contact us. Sorry.</p>
+				
+			</div>
+			<div class="modal-footer">
+				<a class="btn btn-primary" data-dismiss = "modal"> Close </a>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
 {% endblock %}
 
 {% block SCRIPTS %}
+
+
 
 {% endblock %}
