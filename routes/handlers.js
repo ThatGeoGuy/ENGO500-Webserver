@@ -12,7 +12,7 @@ module.exports = {
 		var template = {
 			"title": "THIS IS A TITLE"
 		};
-		res.render('base.html', template);
+		res.render('index.html', template);
 	},
 	layout : function(req, res) { 
 		var template = { 
