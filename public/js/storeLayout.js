@@ -16,6 +16,8 @@ var shelfSectionConfig = {
 var currentShelfNumber = 0;
 var currentShelfSectionNumber = 0;
 var shelves = [];
+var svg;
+var scale;
 
 var $parentAccordion;
 var $accordionTemplate;
@@ -24,6 +26,7 @@ var $addSection;
 var $addShelf;
 var $deleteButton;
 var $saveButton;
+var $deleteAll;
 
 $(document).ready(function () {
 
@@ -34,10 +37,24 @@ $(document).ready(function () {
 	$addSection = $("#addSection");
 	$addShelf = $("#addShelf");
 	$deleteButton = $('#deleteButton');
-	$saveButton = $('#saveButton')
+	$saveButton = $('#saveButton');
+	$deleteAll = $('#deleteAll');
 
 	$addSection.hide();
 	$deleteButton.hide();
+
+	svg = d3.select('#d3').append("svg")
+		.attr("width", w)
+		.attr("height", h);
+
+	// Load previous config
+	if( localStorage.getItem("myShelfConfig") != null ){
+		var shelfJSON = localStorage.getItem("myShelfConfig");
+		shelves = jQuery.parseJSON(shelfJSON);
+
+		// Display existing shelves
+		drawExisting(shelves, scale);
+	}
 
 	// Add Shelf Button
 	$addShelf.on("click", function (e) {
@@ -99,7 +116,7 @@ $(document).ready(function () {
 			$(innerPanel).append($contents);
 
 			addEditable( shelves, "section" );
-			drawSections( activeShelfNumber, shelves, scale );
+			drawSections( activeShelfNumber, shelves, scale, 0 );
 	});
 
 	// Delete button
@@ -180,7 +197,15 @@ $(document).ready(function () {
 		var shelveJSON = JSON.stringify(shelves);
 		console.log(shelveJSON);
 		localStorage.setItem("myShelfConfig", shelveJSON);
-	})
+	});
+
+	// Delete all
+	$deleteAll.on("click", function(e) {
+		e.preventDefault();
+
+		localStorage.removeItem("myShelfConfig");
+		window.location.reload(true);
+	});
 
 });
 
@@ -265,6 +290,7 @@ function generateAccordion( number, accordionType ) {
 
 function generateAccordionContent( shelfIndex, accordionType, shelvesArray ) {
 		var $accordionContent = $(document.createElement("ul"));
+		$accordionContent.addClass("attributeUl");
 		if ( accordionType == "shelf" ) {
 			$accordionContent.append($("<li>").append("Notes: <span class=\"input notes\"" + shelvesArray[shelfIndex].notes + "</span>"));
 			$accordionContent.append($("<li>").append("RasPi UUID: <span class=\"input uuid\"" + shelvesArray[shelfIndex].rpUUID + "</span>"));
@@ -305,7 +331,6 @@ function addShelfToArray( shelvesArray ) {
 }
 
 /* --------------- D3 --------------- */
-var svg;
 // look at viewbox example here: http://jsfiddle.net/NKRPe/60/
 var w = 808;
 var h = w*2/3;
@@ -314,15 +339,9 @@ var domainSize = 1;
 
 /* Scale needs its domain to size the current of shelves + blank aisles, so update
 the scale domain anytime a shelf is added */
-var scale = d3.scale.linear()
+scale = d3.scale.linear()
 	.domain([0,1])
 	.rangeRound([0,w]);
-
-$(document).ready( function() {
-	svg = d3.select('#d3').append("svg")
-		.attr("width", w)
-		.attr("height", h);
-});
 
 function drawShelves(shelves, scale){
 	domainSize++;
@@ -361,7 +380,7 @@ function drawShelves(shelves, scale){
 		});
 }
 
-function drawSections(shelfIndex, shelves, scale){
+function drawSections(shelfIndex, shelves, scale, delay){
 
 	var selector = ".s" + shelfIndex;
 
@@ -403,6 +422,34 @@ function drawSections(shelfIndex, shelves, scale){
 			var sectionIndex = $(panel).accordion("option", "active", i + 1);
 		})
 		.transition()
+		.delay(delay)
 		.attr("opacity", 1)
 		.duration(500);
+}
+
+function drawExisting(shelves, scale){
+	scale = d3.scale.linear()
+		.domain([0,shelves.length + 1])
+		.rangeRound([0,w]);
+
+	svg.selectAll(".shelf").data(shelves).enter().append("rect")
+		.attr("x", w+100) // initialize out of frame, then slide in
+		.attr("y", strokePadding)
+		.attr("rx", 5)
+		.attr("ry", 5)
+		.attr("width", 50)
+		.attr("height", 500)
+		.attr("fill", "#E1EFF5")
+		.attr("stroke",  "#2E6E9E")
+		.attr("stroke-width", strokePadding)
+		.attr("class", "shelf")
+		.transition()
+		.duration(500)
+		.attr("x", function(d,i) {
+			return scale(i+1);
+		});
+
+	for(var index = 0; index < shelves.length; index++){
+		drawSections(index, shelves, scale, 500);
+	}
 }

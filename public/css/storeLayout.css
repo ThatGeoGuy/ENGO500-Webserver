@@ -43,6 +43,9 @@ ul {
 #saveButton {
 	float: right;
 }
+#deleteAll {
+	float: right;
+}
 
 * {margin:0; padding:0} 
 html {height: 100%}
