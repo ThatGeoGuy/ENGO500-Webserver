@@ -24,7 +24,7 @@ if(architecture === "x64") {
 	if(systemPlatform === 'linux') { 
 		architecture = "i686";
 	} else if (systemPlatform === 'win32') {
-		architecture === "i386";
+		architecture = "i386";
 	}
 }
 
