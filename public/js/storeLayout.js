@@ -118,23 +118,57 @@ $(document).ready(function () {
 					shelves[activeShelfNumber].sections.splice(activeSectionNumber - 1, 1);
 
 					// Remove accordion element
-					var headerToRemove = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-header-" + activeSectionNumber;
-					var panelToRemove = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-" + activeSectionNumber;
-					$(panelToRemove).remove();
-					$(headerToRemove).remove();
+					var header = "ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-header-";
+					var panel = "ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-";
+					$("#" + panel + activeSectionNumber).remove();
+					$("#" + header + activeSectionNumber).remove();
+
+					// Rename remaning element #IDs					
+					$(activePanel + " h3").each(function (i) {
+						$(this).attr("id", header + i);
+						if( i !=0 ){
+							$(this).text("Section " + i);
+						}
+					});
+					$(activePanel + " div").each(function (i) {
+						$(this).attr("id", panel + i);
+					});
 				}
 			} else {
 				// Delete shelf
 				shelves.splice(activeShelfNumber, 1);
 
 				// Remove accordion element
-				var headerToRemove = "#ui-accordion-parentAccordion-header-" + activeShelfNumber;
-				var panelToRemove = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
-				$(panelToRemove).remove();
-				$(headerToRemove).remove();
+				var header = "ui-accordion-parentAccordion-header-";
+				var panel = "ui-accordion-parentAccordion-panel-";
+				$("#" + panel + activeShelfNumber).remove();
+				$("#" + header + activeShelfNumber).remove();
 				currentShelfNumber--;
+
+				// Rename remaining element #IDs
+				$("#parentAccordion > h3").each(function (i) {
+					$(this).attr("id", header + i);
+					var n = i + 1;
+					$(this).text("Shelf " + n);
+				});
+				$("#parentAccordion > div").each(function (i) {
+					$(this).attr("id", panel + i);
+				});
+				// Rename children of remaning elements to reflect parent #ID change
+				for( var i = 0; i < shelves.length; i++){
+					var panelSelect = "#ui-accordion-parentAccordion-panel-" + i;
+					var childHeader = "ui-accordion-ui-accordion-parentAccordion-panel-" + i + "-header-";
+					var childPanel = "ui-accordion-ui-accordion-parentAccordion-panel-" + i + "-panel-";
+					$(panelSelect + " h3").each(function (j) {
+						$(this).attr("id", childHeader + j);
+					});
+					$(panelSelect + " div").each(function (k) {
+						$(this).attr("id", childPanel + k);
+					});
+				}
 			}
 		}
+		$parentAccordion.accordion("refresh");
 	});
 
 });
