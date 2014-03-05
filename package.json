@@ -6,11 +6,13 @@
     "start": "node server.js"
   },
   "dependencies": {
+	"adm-zip": "*",
     "express": "3.4.8",
 	"mongoose": "*",
     "nunjucks": "*",
 	"passport": "*",
 	"passport-local": "*",
-	"pwd": "*"
+	"pwd": "*",
+	"request": "*"
   }
 }
