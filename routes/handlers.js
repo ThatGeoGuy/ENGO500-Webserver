@@ -10,7 +10,7 @@ module.exports = {
 	// Index function for root of site
 	index : function(req, res) {
 		var template = {
-			"title": "THIS IS A TITLE"
+			"title": "LASS Homepage"
 		};
 		res.render('index.html', template);
 	},
