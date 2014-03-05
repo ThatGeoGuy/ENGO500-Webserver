@@ -1,7 +1,6 @@
-@ECHO on
-SETLOCAL
+ECHO on
 FOR /f %%i IN (
- 'dir /ad /b "C:\" |findstr /I "mongo"'
+ 'dir /ad /b "C:\" ^|findstr /I "mongo"'
 ) DO CALL :movedir %%i
 
 :movedir 
