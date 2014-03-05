@@ -23,6 +23,7 @@ var $accordionTemplate;
 var $addSection;
 var $addShelf;
 var $deleteButton;
+var $saveButton;
 
 $(document).ready(function () {
 
@@ -33,6 +34,7 @@ $(document).ready(function () {
 	$addSection = $("#addSection");
 	$addShelf = $("#addShelf");
 	$deleteButton = $('#deleteButton');
+	$saveButton = $('#saveButton')
 
 	$addSection.hide();
 	$deleteButton.hide();
@@ -170,6 +172,15 @@ $(document).ready(function () {
 		}
 		$parentAccordion.accordion("refresh");
 	});
+
+	// Save button
+	$saveButton.on("click", function(e) {
+		e.preventDefault();
+
+		var shelveJSON = JSON.stringify(shelves);
+		console.log(shelveJSON);
+		localStorage.setItem("myShelfConfig", shelveJSON);
+	})
 
 });
 

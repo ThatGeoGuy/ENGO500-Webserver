@@ -40,9 +40,8 @@ ul {
 	float: left;
 	width: 20;
 }
-.editPencil {
+#saveButton {
 	float: right;
-	cursor: pointer;
 }
 
 * {margin:0; padding:0} 
