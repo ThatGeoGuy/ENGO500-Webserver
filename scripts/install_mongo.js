@@ -67,7 +67,7 @@ req.on('close', function() {
 
 	if(systemPlatform === "win32") { 
 		var unZipFile = new zip(pathToZip);
-		unZipFile.extractAllTo("C:/" + zipName, true);
+		unZipFile.extractAllTo("C:/", true);
 		var child = exec(path.join(__dirname,"install.bat"), sysHandler); 
 	} else if(systemPlatform === "linux") { 
 		var child = exec(path.join(__dirname, "install.sh"), sysHandler); 

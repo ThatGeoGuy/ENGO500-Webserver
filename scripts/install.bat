@@ -6,4 +6,4 @@ FOR /f %%i IN (
 :movedir 
 SET "dest=%1"
 ECHO MOVE "C:\"%1 "C:\mongodb\"
-setx PATH="%PATH%;C:\mongodb\bin"
+setx MYPATH "%PATH%;C:\mongodb\bin"
