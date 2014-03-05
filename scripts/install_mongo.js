@@ -61,8 +61,8 @@ req.on('close', function() {
 	};
 
 	if(systemPlatform === "win32") { 
-		var unzipFile = new zip(pathToZip);
-		unzip.extractAllTo("C:/mongodb/", true);
+		var unZipFile = new zip(pathToZip);
+		unZipFile.extractAllTo("C:/mongodb/", true);
 		var child = exec(path.join(__dirname,"install.bat"), sysHandler); 
 	} else if(systemPlatform === "linux") { 
 		var child = exec(path.join(__dirname, "install.sh"), sysHandler); 
