@@ -20,32 +20,37 @@ var architecture   = os.arch();
 
 if(architecture === "x64") { 
 	architecture = "x86_x64";
+} else if(architecture === "ia32" || architecture === "x86") { 
+	if(systemPlatform === 'linux') { 
+		architecture = "i686";
+	} else if (systemPlatform === 'win32') {
+		architecture === "i386";
+	}
 }
 
 var mongoLinks = {
 	"win32": { 
 		"ext"     : ".zip",
-		"ia32"    : "http://fastdl.mongodb.org/win32/mongodb-win32-i386-" + mongoVersion + ".zip",
-		"x86"     : "http://fastdl.mongodb.org/win32/mongodb-win32-i386-" + mongoVersion + ".zip",
+		"i386"    : "http://fastdl.mongodb.org/win32/mongodb-win32-i386-" + mongoVersion + ".zip",
 		"x86_x64" : "http://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-" + mongoVersion + ".zip"
 	},
 	"linux":         {
 		"ext"     : ".tgz",
-		"ia32"    : "http://fastdl.mongodb.org/linux/mongodb-linux-i686-" + mongoVersion + ".tgz",
-		"x86"     : "http://fastdl.mongodb.org/linux/mongodb-linux-i686-" + mongoVersion + ".tgz",
+		"i686"    : "http://fastdl.mongodb.org/linux/mongodb-linux-i686-" + mongoVersion + ".tgz",
 		"x86_x64" : "http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-" + mongoVersion + ".tgz"
 	}
 }
 
 // Download the file
-var pathToZip = path.join(__dirname, 
-			"mongodb-" + 
+var zipName = "mongodb-" + 
 			systemPlatform + 
 			"-" +
 			architecture + 
 			"-" + 
 			mongoVersion + 
-			mongoLinks[systemPlatform]["ext"]);
+			mongoLinks[systemPlatform]["ext"];
+var pathToZip = path.join(__dirname, zipName);
+
 		 
 var req = request(mongoLinks[systemPlatform][architecture]).pipe(fs.createWriteStream(pathToZip));
 
@@ -62,7 +67,7 @@ req.on('close', function() {
 
 	if(systemPlatform === "win32") { 
 		var unZipFile = new zip(pathToZip);
-		unZipFile.extractAllTo("C:/mongodb/", true);
+		unZipFile.extractAllTo("C:/" + zipName, true);
 		var child = exec(path.join(__dirname,"install.bat"), sysHandler); 
 	} else if(systemPlatform === "linux") { 
 		var child = exec(path.join(__dirname, "install.sh"), sysHandler); 
