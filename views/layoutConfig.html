@@ -5,15 +5,49 @@
 {% endblock %}
 
 {% block CONTENT %}
+
+<div class = "navbar navbar-inverse navbar-static-top">
+	<div class = "container">
+		
+		<a href="#" class = "navbar-brand">Store Layout</a>
+		
+		<!-- This makes the menu mobile friendly -->
+		<button class = "navbar-toggle" data-toggle = "collapse" data-target = ".navHeaderCollapse">
+			<span class = "icon-bar"></span>
+			<span class = "icon-bar"></span>
+			<span class = "icon-bar"></span>
+		</button>
+		
+		<div class = "collapse navbar-collapse navHeaderCollapse">
+		
+			<ul class = "nav navbar-nav navbar-right">
+				
+				<li><a href = "/">Home</a></li>
+				<li class = "active"><a href = "/layout">Create layout</a></li>
+				<li><a href = "/viewstore">View store</a></li>
+				<li class = "dropdown">
+					
+					<a href = "#" class = "dropdown-toggle" data-toggle = "dropdown">Get help <b class = "caret"></b></a>
+					<ul class = "dropdown-menu">
+						<li><a href = "#">FAQ</a></li>
+						<li><a href = "#contact" data-toggle="modal">Contact us</a></li>
+					</ul>
+					
+				</li>
+			</ul>
+		
+		</div>
+	</div>
+</div>
+<!-- End of top navbar -->
+
 <div id='wrapper' class='container'> 
 	<div id='content'>
-		<h1>Store Layout</h1>
-		<p>Here you can set up the layout of your store.</p>
-			
+
 			<div id='container'>
 				<div id='mainLeft'>
 					<div id='control'>
-						<h2>Create your layout</h2>
+						<h3>Create your layout</h3>
 					</div>
 					<div id='parentAccordion'></div>
 					<button type='button' id='addShelf' class='btn btn-primary btn-xs'>
@@ -29,7 +63,7 @@
 
 				<div id='mainRight'>
 					<div id='view'>
-						<h2>Visualize your layout</h2>
+						<h3>Visualize your layout</h3>
 						<div id='d3'></div>
 						<button type='button' id='saveButton' class='btn btn-success btn-xs'>Save</button>
 						<button type='button' id='deleteAll' class='btn btn-danger btn-xs'>Delete all</button>
@@ -48,6 +82,34 @@
 <!-- endContainer -->
 <!-- endContent -->
 <!-- endWrapper -->
+
+<div class = "navbar navbar-inverse navbar-static-top">
+	
+	<div class = "container">
+		<p class = "navbar-text pull-left">Site Built By TurboCats</p>
+		<a href = "https://github.com/ThatGeoGuy/ENGO500-Webserver" class = "navbar-btn btn-primary btn pull-right">GitHub</a>
+	</div>
+	
+</div>
+
+
+<div class = "modal fade" id = "contact" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1> Contact us</h1>
+			</div>
+			<div class = "modal-body">
+				<p>You can contact us ... actually I don't know how you would contact us. Sorry.</p>
+				
+			</div>
+			<div class="modal-footer">
+				<a class="btn btn-primary" data-dismiss = "modal"> Close </a>
+			</div>
+			
+		</div>
+	</div>
+</div>
 {% endblock %}
 
 {% block SCRIPTS %}

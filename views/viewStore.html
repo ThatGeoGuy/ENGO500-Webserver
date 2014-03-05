@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block CSS %}
+<link rel='stylesheet' href='http://code.jquery.com/ui/1.10.4/themes/redmond/jquery-ui.css'>
 {% endblock %}
 
 {% block CONTENT %}
@@ -7,7 +8,7 @@
 <div class = "navbar navbar-inverse navbar-static-top">
 	<div class = "container">
 		
-		<a href="#" class = "navbar-brand">LASS</a>
+		<a href="#" class = "navbar-brand">View store</a>
 		
 		<!-- This makes the menu mobile friendly -->
 		<button class = "navbar-toggle" data-toggle = "collapse" data-target = ".navHeaderCollapse">
@@ -20,41 +21,50 @@
 		
 			<ul class = "nav navbar-nav navbar-right">
 				
-				<li class = "active"><a href = "#">Home</a></li>
+				<li><a href = "/">Home</a></li>
 				<li><a href = "/layout">Create layout</a></li>
-				<li><a href = "/viewstore">View store</a></li>
+				<li class = "active"><a href = "/viewstore">View store</a></li>
 				<li class = "dropdown">
 					
 					<a href = "#" class = "dropdown-toggle" data-toggle = "dropdown">Get help <b class = "caret"></b></a>
 					<ul class = "dropdown-menu">
 						<li><a href = "#">FAQ</a></li>
 						<li><a href = "#contact" data-toggle="modal">Contact us</a></li>
-						
 					</ul>
 					
 				</li>
 			</ul>
 		
 		</div>
-		
 	</div>
-	
 </div>
+<!-- End of top navbar -->
 
-<div class="container">
-	
-	<div class = "jumbotron text-center">
-		<h1>Welcome!</h1>
-		<p>In this little description I would probably tell you briefly what our product is and does</p>
-		<a class = "btn btn-default">See how it works</a>
+<div id='wrapper' class='container'> 
+	<div id='content'>
+
+
+
+					<div id='view'>
+						<div id='d3'></div>
+				
+					</div>
+
+
+				<div class='accordion'> <!--rename to accordionTemplate -->
+					<h3 class='accordion-title'></h3>
+					<div class='accordion-content'></div>
+				</div>
+			</div>
+		</div>
 	</div>
-	
 </div>
+<!-- endMain -->
+<!-- endContainer -->
+<!-- endContent -->
+<!-- endWrapper -->
 
-
-
-
-<div class = "navbar navbar-inverse navbar-fixed-bottom">
+<div class = "navbar navbar-inverse navbar-static-top">
 	
 	<div class = "container">
 		<p class = "navbar-text pull-left">Site Built By TurboCats</p>
@@ -81,11 +91,11 @@
 		</div>
 	</div>
 </div>
-
 {% endblock %}
 
 {% block SCRIPTS %}
-
-
-
+<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js'></script>
+<script type='text/javascript' src='http://code.jquery.com/ui/1.10.4/jquery-ui.min.js'></script>
+<script type='text/javascript' src='http://www.appelsiini.net/download/jquery.jeditable.mini.js'></script>
+<script type='text/javascript' src='/js/storeLayout.js'></script>
 {% endblock %}
