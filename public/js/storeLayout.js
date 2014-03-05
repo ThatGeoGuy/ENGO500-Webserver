@@ -244,14 +244,14 @@ function drawShelves(shelves, scale){
 	svg.transition().selectAll(".shelf")
 			.duration(500)
 			.attr("x", function(d,i) {
-				return scale(i+1) - 25;
+				return scale(i+1);
 			});
 	for(var i=0; i<shelves.length; i++){
 		var selector = ".s" + i;
 		svg.transition().selectAll(selector)
 		.duration(500)
 		.attr("x", function() {
-			return scale(i+1) - 20;
+			return scale(i+1) + 5;
 		});
 	}
 
@@ -299,7 +299,7 @@ function drawSections(shelfIndex, shelves, scale){
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
 		})
-		.attr("width", 40) //probably need to change the sizes
+		.attr("width", 40) // probably need to change the sizes
 		.attr("height", function(d,i) {
 			return 495/shelves[shelfIndex].sections.length - 5;
 		})
@@ -308,6 +308,13 @@ function drawSections(shelfIndex, shelves, scale){
 		.attr("fill", "#2E6E9E")
 		.attr("class", "section s" + shelfIndex)
 		.attr("opacity", 0)
+		// Open accordion associated with this element when clicked
+		.attr("cursor", "pointer")
+		.on("click", function(d, i) {
+			$parentAccordion.accordion('option', 'active', shelfIndex);
+			var panel = "#ui-accordion-parentAccordion-panel-" + shelfIndex;
+			var sectionIndex = $(panel).accordion("option", "active", i + 1);
+		})
 		.transition()
 		.attr("opacity", 1)
 		.duration(500);
