@@ -22,6 +22,8 @@ var $accordionTemplate;
 
 var $addSection;
 var $addShelf;
+var $deleteButton;
+var $saveButton;
 
 $(document).ready(function () {
 
@@ -31,8 +33,11 @@ $(document).ready(function () {
 
 	$addSection = $("#addSection");
 	$addShelf = $("#addShelf");
+	$deleteButton = $('#deleteButton');
+	$saveButton = $('#saveButton')
 
 	$addSection.hide();
+	$deleteButton.hide();
 
 	// Add Shelf Button
 	$addShelf.on("click", function (e) {
@@ -66,6 +71,7 @@ $(document).ready(function () {
 		drawShelves( shelves, scale );
 
 		manageSectionButton();
+
 		currentShelfNumber++;
 	});
 
@@ -95,6 +101,86 @@ $(document).ready(function () {
 			addEditable( shelves, "section" );
 			drawSections( activeShelfNumber, shelves, scale );
 	});
+
+	// Delete button
+	$deleteButton.on("click", function(e) {
+		e.preventDefault();
+
+		var activeShelfNumber = $parentAccordion.accordion("option", "active");
+		var activePanel = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
+		var activeSectionNumber = $(activePanel).accordion("option", "active");
+		
+		if(activeShelfNumber !== false){
+			if(activeSectionNumber !== false){
+				// Delete section
+				if( activeSectionNumber == 0){
+					console.log("Shelf attributes section cannot be removed");
+				} else {
+					// Remove section from array
+					shelves[activeShelfNumber].sections.splice(activeSectionNumber - 1, 1);
+
+					// Remove accordion element
+					var header = "ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-header-";
+					var panel = "ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-";
+					$("#" + panel + activeSectionNumber).remove();
+					$("#" + header + activeSectionNumber).remove();
+
+					// Rename remaning element #IDs					
+					$(activePanel + " h3").each(function (i) {
+						$(this).attr("id", header + i);
+						if( i !=0 ){
+							$(this).text("Section " + i);
+						}
+					});
+					$(activePanel + " div").each(function (i) {
+						$(this).attr("id", panel + i);
+					});
+				}
+			} else {
+				// Delete shelf
+				shelves.splice(activeShelfNumber, 1);
+
+				// Remove accordion element
+				var header = "ui-accordion-parentAccordion-header-";
+				var panel = "ui-accordion-parentAccordion-panel-";
+				$("#" + panel + activeShelfNumber).remove();
+				$("#" + header + activeShelfNumber).remove();
+				currentShelfNumber--;
+
+				// Rename remaining element #IDs
+				$("#parentAccordion > h3").each(function (i) {
+					$(this).attr("id", header + i);
+					var n = i + 1;
+					$(this).text("Shelf " + n);
+				});
+				$("#parentAccordion > div").each(function (i) {
+					$(this).attr("id", panel + i);
+				});
+				// Rename children of remaning elements to reflect parent #ID change
+				for( var i = 0; i < shelves.length; i++){
+					var panelSelect = "#ui-accordion-parentAccordion-panel-" + i;
+					var childHeader = "ui-accordion-ui-accordion-parentAccordion-panel-" + i + "-header-";
+					var childPanel = "ui-accordion-ui-accordion-parentAccordion-panel-" + i + "-panel-";
+					$(panelSelect + " h3").each(function (j) {
+						$(this).attr("id", childHeader + j);
+					});
+					$(panelSelect + " div").each(function (k) {
+						$(this).attr("id", childPanel + k);
+					});
+				}
+			}
+		}
+		$parentAccordion.accordion("refresh");
+	});
+
+	// Save button
+	$saveButton.on("click", function(e) {
+		e.preventDefault();
+
+		var shelveJSON = JSON.stringify(shelves);
+		console.log(shelveJSON);
+		localStorage.setItem("myShelfConfig", shelveJSON);
+	})
 
 });
 
@@ -206,7 +292,8 @@ function attachAccordionEvents( $accordionElement, accordionType ) {
 // change 
 function manageSectionButton() {
 		if ( $parentAccordion.children().length > 0 ) {
-				$addSection.show();
+				$addSection.fadeIn("slow");
+				$deleteButton.fadeIn("slow");
 		} else {
 				$addSection.hide();
 		}
