@@ -21,5 +21,14 @@ module.exports = {
 			"description": "Edit and create a virtual layout of your store!"
 		}
 		res.render('layoutConfig.html', template);
+	},
+	viewstore : function(req, res) { 
+		var template = { 
+			"title": "LASS - Store Viewer",
+			"authors": ["Ben Trodd", "Jeremy Steward"],
+			"description": "Edit and create a virtual layout of your store!"
+		}
+		res.render('viewStore.html', template);
 	}
+	
 }
