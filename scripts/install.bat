@@ -1,2 +1,1 @@
-ECHO off 
-setx PATH=%PATH%;C:\\mongodb
+setx PATH=%PATH%;C:\mongodb

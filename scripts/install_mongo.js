@@ -49,7 +49,7 @@ var pathToZip = path.join(__dirname,
 		 
 var req = request(mongoLinks[systemPlatform][architecture]).pipe(fs.createWriteStream(pathToZip));
 
-req.on('end', function() {
+req.on('close', function() {
 	// Call command line install script
 	// First, a function to handle stdout and stderr
 	var sysHandler = function(err, stdout, stderr) {
@@ -65,6 +65,6 @@ req.on('end', function() {
 		unzip.extractAllTo("C:/mongodb/", true);
 		var child = exec(path.join(__dirname,"install.bat"), sysHandler); 
 	} else if(systemPlatform === "linux") { 
-		var child = exec("install.sh", sysHandler); 
+		var child = exec(path.join(__dirname, "install.sh"), sysHandler); 
 	}
 });
