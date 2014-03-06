@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block CSS %}
+<link rel='stylesheet' type='text/css' href='/css/forms.css'>
+{% endblock %} 
+
+{% block CONTENT %}
+<div class='container'> 
+	<form class='form-signin' method='post' role='form'>
+		<h2 class='form-signin-heading'>Register for a free account!</h2>
+
+		<input 
+		type='text' 
+		name='username' 
+		class='form-control' 
+		pattern='\w+'
+		placeholder='Username' 
+		required 
+		autofocus />
+
+		<input 
+		type='password' 
+		name='password' 
+		class='form-control' 
+		pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{8,}' 
+		placeholder='Password' 
+		onchange='form.pwd2.pattern = this.value;'
+		required />
+		
+		<input 
+		type='password' 
+		name='password2' 
+		class='form-control' 
+		pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{8,}' 
+		placeholder='Confirm Password' 
+		required />
+
+		<button class='btn btn-lg btn-primary btn-block' type='submit'>Submit</button>
+		<br>
+		<a href='/login'>Have an account? Log in</a>
+	</form>
+</div>
+{% endblock %} 
+
+{% block SCRIPTS %}
+{% endblock %} 
