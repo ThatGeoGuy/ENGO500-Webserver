@@ -73,21 +73,17 @@ app.use(function(error, req, res, next) {
 /* 
  * GET requests to pages
  */
-//app.get('/',          handlers.index);
-//app.get('/login',     handlers.login);
-//app.get('/home',    handlers.layout);
-//app.get('/register',  handlers.register);
-
 require('./routes/getHandlers')(app,passport);
-require('./routes/postHandlers')(app,passport);
 
 /*
- * POST requests to specific pages
+ * POST requests to pages
  */
+require('./routes/postHandlers')(app,passport);
 
 /*
  * Start server
  */
 app.listen(app.get('port'), function(){
-	console.log('Listening on port ' + app.get('port') + '. Go to http://127.0.0.1:' + app.get('port') + '/');
+	console.log('Listening on port ' + app.get('port') + 
+		'. Go to http://localhost:' + app.get('port') + '/');
 });
