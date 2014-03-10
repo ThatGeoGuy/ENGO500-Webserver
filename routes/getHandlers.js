@@ -19,7 +19,7 @@ module.exports = function(app, passport) {
 			"authors"     : authors,
 			"description" : "A location aware shelf system to find out what your customers want!",
 			// Navbar options
-			"navFixed" : true,
+			"navStatic" : true,
 			"index"    : true,
 		};
 		res.render('index.html', templateParameters);
@@ -33,10 +33,13 @@ module.exports = function(app, passport) {
 				"authors" : authors,
 				"description" : false,
 				"user": req.user.username,
+				// Navbar options
+				"navStatic" : true,
+				"home"    : true,
 			};
 			res.render('home.html', templateParameters);
 		} else { 
-			res.redirect('/login');
+			res.redirect('/');
 		}
 	});
 
@@ -45,7 +48,10 @@ module.exports = function(app, passport) {
 			var templateParameters = { 
 				"title": "Store Layout Editor",
 				"authors": ["Ben Trodd", "Jeremy Steward"],
-				"description": "Edit and create a virtual layout of your store!"
+				"description": "Edit and create a virtual layout of your store!",
+				// Navbar options
+				"navStatic" : true,
+				"layout"    : true,
 			}
 			res.render('layoutConfig.html', templateParameters);
 		} else { 
@@ -91,7 +97,10 @@ module.exports = function(app, passport) {
 			var templateParameters = { 
 				"title": "Store Viewer",
 				"authors": ["Ben Trodd", "Jeremy Steward"],
-				"description": "Edit and create a virtual layout of your store!"
+				"description": "Edit and create a virtual layout of your store!",
+				// Navbar options
+				"navStatic" : true,
+				"viewstore" : true,
 			}
 			res.render('viewStore.html', templateParameters);
 		} else { 
