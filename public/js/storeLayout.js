@@ -54,6 +54,12 @@ $(document).ready(function () {
 
 		// Display existing shelves
 		drawExisting(shelves, scale);
+		for( var i = 0; i < shelves.length; i++){
+			makeAccordion( shelves, i, 0, "shelf");
+			for( var j = 0; j < shelves[i].sections.length; j++){
+				makeAccordion( shelves, i, j + 1, "section");
+			}
+		}
 	}
 
 	// Add Shelf Button
@@ -62,33 +68,9 @@ $(document).ready(function () {
 
 		// Create a shelf and append it to the parent accordion
 		addShelfToArray( shelves );
-		var $shelfElement = generateAccordion( currentShelfNumber, "shelf" );
-		$parentAccordion.append($shelfElement);
-		$parentAccordion.accordion("refresh");
-
-		// Apply name to shelf
-		var header = "#ui-accordion-parentAccordion-header-" + currentShelfNumber;
-		var shelfDisplayNumber = currentShelfNumber + 1;
-		$(header).text("Shelf " + shelfDisplayNumber);
-
-		// Create an accordion element to hold shelf attributes
-		var $attributesElement = generateAccordion(currentShelfNumber + 1, "section");
-		var panel = "#ui-accordion-parentAccordion-panel-" + currentShelfNumber;
-		$(panel).append($attributesElement);
-		$(panel).accordion("refresh");
-
-		// Apply content to shelf attribute accordion element
-		var $attributesContent = generateAccordionContent(currentShelfNumber, "shelf", shelves);
-		var attrHeader = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-header-0";
-		$(attrHeader).text("Shelf attributes");
-		var attrContent = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-panel-0";
-		$(attrContent).append($attributesContent);
-
-		addEditable( shelves, "shelf" );
+		makeAccordion( shelves, currentShelfNumber, 0, "shelf" )
 		drawShelves( shelves, scale );
-
 		manageSectionButton();
-
 		currentShelfNumber++;
 	});
 
@@ -99,23 +81,7 @@ $(document).ready(function () {
 			var activeShelfNumber = $parentAccordion.accordion("option", "active");
 			shelves[activeShelfNumber].sections.push( new sections() );
 			var newSectionNumber = shelves[activeShelfNumber].sections.length;
-
-			// Create a section and append it to a shelf
-			var $shelfSectionElement = generateAccordion(activeShelfNumber + 1, "section");
-			var panel = "#ui-accordion-parentAccordion-panel-" + activeShelfNumber;
-			$(panel).append($shelfSectionElement);
-			$(panel).accordion("refresh");
-
-			// Apply a name to the section
-			var innerHeader = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-header-" + newSectionNumber;
-			$(innerHeader).text("Section " + newSectionNumber);
-
-			// Apply content to the section
-			var $contents = generateAccordionContent( activeShelfNumber, "section", shelves );
-			var innerPanel = "#ui-accordion-ui-accordion-parentAccordion-panel-" + activeShelfNumber + "-panel-" + newSectionNumber;
-			$(innerPanel).append($contents);
-
-			addEditable( shelves, "section" );
+			makeAccordion( shelves, activeShelfNumber, newSectionNumber, "section");
 			drawSections( activeShelfNumber, shelves, scale, 0 );
 	});
 
@@ -208,6 +174,51 @@ $(document).ready(function () {
 	});
 
 });
+
+function makeAccordion( shelves, currentShelfNumber, currentSectionNumber, accordionType ) {
+	if (accordionType == "shelf"){
+		var $shelfElement = generateAccordion( currentShelfNumber, "shelf" );
+		$parentAccordion.append($shelfElement);
+		$parentAccordion.accordion("refresh");
+
+		// Apply name to shelf
+		var header = "#ui-accordion-parentAccordion-header-" + currentShelfNumber;
+		var shelfDisplayNumber = currentShelfNumber + 1;
+		$(header).text("Shelf " + shelfDisplayNumber);
+
+		// Create an accordion element to hold shelf attributes
+		var $attributesElement = generateAccordion(currentShelfNumber + 1, "section");
+		var panel = "#ui-accordion-parentAccordion-panel-" + currentShelfNumber;
+		$(panel).append($attributesElement);
+		$(panel).accordion("refresh");
+
+		// Apply content to shelf attribute accordion element
+		var $attributesContent = generateAccordionContent(currentShelfNumber, "shelf", shelves);
+		var attrHeader = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-header-0";
+		$(attrHeader).text("Shelf attributes");
+		var attrContent = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-panel-0";
+		$(attrContent).append($attributesContent);
+
+		addEditable( shelves, "shelf" );
+	} else {
+		// Create a section and append it to a shelf
+		var $shelfSectionElement = generateAccordion(currentShelfNumber + 1, "section");
+		var panel = "#ui-accordion-parentAccordion-panel-" + currentShelfNumber;
+		$(panel).append($shelfSectionElement);
+		$(panel).accordion("refresh");
+
+		// Apply a name to the section
+		var innerHeader = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-header-" + currentSectionNumber;
+		$(innerHeader).text("Section " + currentSectionNumber);
+
+		// Apply content to the section
+		var $contents = generateAccordionContent( currentShelfNumber, "section", shelves );
+		var innerPanel = "#ui-accordion-ui-accordion-parentAccordion-panel-" + currentShelfNumber + "-panel-" + currentSectionNumber;
+		$(innerPanel).append($contents);
+
+		addEditable( shelves, "section" );
+	}
+}
 
 function addEditable( shelves, type ) {
 	if( type == "shelf" ){
