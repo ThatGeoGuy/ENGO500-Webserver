@@ -6,7 +6,6 @@
  * Description : Implements the webserver for the ENGO500 project website
  */
 var express  = require('express'),
-	handlers = require('./routes/handlers'),
 	mongoose = require('mongoose')
 	nunjucks = require('nunjucks'),
 	passport = require('passport'),
