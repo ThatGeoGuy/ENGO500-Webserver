@@ -28,6 +28,11 @@ var $deleteButton;
 var $saveButton;
 var $deleteAll;
 
+var w = 808;
+var h = w*2/3;
+var strokePadding = 1;
+var domainSize = 1;
+
 $(document).ready(function () {
 
 	$parentAccordion = $("#parentAccordion");
@@ -60,7 +65,7 @@ $(document).ready(function () {
 				makeAccordion( shelves, i, j + 1, "section");
 			}
 		}
-
+		manageSectionButton();
 		currentShelfNumber = shelves.length;
 	}
 
@@ -78,13 +83,13 @@ $(document).ready(function () {
 
 	// Add section button
 	$addSection.on("click", function (e) {
-			e.preventDefault();
+		e.preventDefault();
 
-			var activeShelfNumber = $parentAccordion.accordion("option", "active");
-			shelves[activeShelfNumber].sections.push( new sections() );
-			var newSectionNumber = shelves[activeShelfNumber].sections.length;
-			makeAccordion( shelves, activeShelfNumber, newSectionNumber, "section");
-			drawSections( activeShelfNumber, shelves, scale, 0 );
+		var activeShelfNumber = $parentAccordion.accordion("option", "active");
+		shelves[activeShelfNumber].sections.push( new sections() );
+		var newSectionNumber = shelves[activeShelfNumber].sections.length;
+		makeAccordion( shelves, activeShelfNumber, newSectionNumber, "section");
+		drawSections( activeShelfNumber, shelves, scale, 0 );
 	});
 
 	// Delete button
@@ -343,15 +348,11 @@ function addShelfToArray( shelvesArray ) {
 
 /* --------------- D3 --------------- */
 // look at viewbox example here: http://jsfiddle.net/NKRPe/60/
-var w = 808;
-var h = w*2/3;
-var strokePadding = 1;
-var domainSize = 1;
 
 /* Scale needs its domain to size the current of shelves + blank aisles, so update
 the scale domain anytime a shelf is added */
 scale = d3.scale.linear()
-	.domain([0,1])
+	.domain([0,domainSize])
 	.rangeRound([0,w]);
 
 function drawShelves(shelves, scale){
@@ -411,12 +412,15 @@ function drawSections(shelfIndex, shelves, scale, delay){
 	// Add new sections
 	svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
 		.attr("x", function() {
+			console.log("domain size: " + domainSize);
+			console.log("shelfIndex: " + shelfIndex)
+			console.log("scale: " + scale(shelfIndex+1) + 5);
 			return scale(shelfIndex+1) + 5;
 		})
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
 		})
-		.attr("width", 40) // probably need to change the sizes
+		.attr("width", 40)
 		.attr("height", function(d,i) {
 			return 495/shelves[shelfIndex].sections.length - 5;
 		})
@@ -439,8 +443,9 @@ function drawSections(shelfIndex, shelves, scale, delay){
 }
 
 function drawExisting(shelves, scale){
+	domainSize = shelves.length + 1;
 	scale = d3.scale.linear()
-		.domain([0,shelves.length + 1])
+		.domain([0,domainSize])
 		.rangeRound([0,w]);
 
 	svg.selectAll(".shelf").data(shelves).enter().append("rect")
