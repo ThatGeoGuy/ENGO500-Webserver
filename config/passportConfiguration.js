@@ -26,6 +26,6 @@ module.exports = function(passport, config) {
 		passwordField: 'password'
 	}, 
 	function(username, password, done) { 
-		User.isValidUserPassword(email, password, done);
+		User.isValidUserPassword(username, password, done);
 	}));
 }
