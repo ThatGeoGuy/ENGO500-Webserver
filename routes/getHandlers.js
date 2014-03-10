@@ -43,7 +43,7 @@ module.exports = function(app, passport) {
 	app.get('/layout', function(req, res) { 
 		if(req.isAuthenticated()) {
 			var templateParameters = { 
-				"title": "LASS - Store Layout Editor",
+				"title": "Store Layout Editor",
 				"authors": ["Ben Trodd", "Jeremy Steward"],
 				"description": "Edit and create a virtual layout of your store!"
 			}
@@ -89,7 +89,7 @@ module.exports = function(app, passport) {
 	app.get('/view-store', function(req, res) { 
 		if(req.isAuthenticated()) { 
 			var templateParameters = { 
-				"title": "LASS - Store Viewer",
+				"title": "Store Viewer",
 				"authors": ["Ben Trodd", "Jeremy Steward"],
 				"description": "Edit and create a virtual layout of your store!"
 			}
