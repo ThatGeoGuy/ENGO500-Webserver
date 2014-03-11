@@ -5,25 +5,35 @@
 {% endblock %}
 
 {% block CONTENT %}
+{% include "navigationBar.html" %}
+
+
 <div id='wrapper' class='container'> 
 	<div id='content'>
-		<h1>Store Layout</h1>
-		<p>Here you can set up the layout of your store.</p>
-			
+
 			<div id='container'>
 				<div id='mainLeft'>
 					<div id='control'>
-						<h2>Create your layout</h2>
+						<h3>Create your layout</h3>
 					</div>
 					<div id='parentAccordion'></div>
-					<button type='button' id='addShelf' class='btn btn-primary'>+ Shelf</button>
-					<button type='button' id='addSection' class='btn btn-primary'>+ Section</button>
+					<button type='button' id='addShelf' class='btn btn-primary btn-xs'>
+						<span class="glyphicon glyphicon-plus-sign"></span> Shelf
+					</button>
+					<button type='button' id='addSection' class='btn btn-primary btn-xs'>
+						<span class="glyphicon glyphicon-plus-sign"></span> Section
+					</button>
+					<button type='button' id='deleteButton' class='btn btn-warning btn-xs'>
+						<span class="glyphicon glyphicon-remove-sign"></span>
+					</button>
 				</div>
 
 				<div id='mainRight'>
 					<div id='view'>
-						<h2>Visualize your layout</h2>
+						<h3>Visualize your layout</h3>
 						<div id='d3'></div>
+						<button type='button' id='saveButton' class='btn btn-success btn-xs'>Save</button>
+						<button type='button' id='deleteAll' class='btn btn-danger btn-xs'>Delete all</button>
 					</div>
 				</div>
 
@@ -39,6 +49,11 @@
 <!-- endContainer -->
 <!-- endContent -->
 <!-- endWrapper -->
+
+{% include "navigationBar.html" %}
+
+
+
 {% endblock %}
 
 {% block SCRIPTS %}

@@ -48,6 +48,50 @@ module.exports = {
 		res.render('login.html', templateParameters);
 	}, 
 
+		};
+		res.render('index.html', templateParameters);
+	},
+
+	layout : function(req, res) { 
+		var templateParameters = { 
+			// Metadata options
+			"title"       : "LASS - Store Layout Editor",
+			"authors"     : authors,
+			"description" : "Create and edit a virtual layout of your store!",
+			// Navbar options
+			"navStatic" : true,
+		};
+		res.render('layoutConfig.html', templateParameters);
+	},
+
+	login : function(req, res) {
+		var templateParameters = { 
+			// Metadata options
+			"title" : "LASS - Login",
+			"authors" : authors,
+			"description" : false,
+		};
+		res.render('login.html', templateParameters);
+	}, 
+
+	layout : function(req, res) { 
+		var template = { 
+			"title": "LASS - Store Layout Editor",
+			"authors": ["Ben Trodd", "Jeremy Steward"],
+			"description": "Edit and create a virtual layout of your store!"
+		}
+		res.render('layoutConfig.html', template);
+	},
+	viewstore : function(req, res) { 
+		var template = { 
+			"title": "LASS - Store Viewer",
+			"authors": ["Ben Trodd", "Jeremy Steward"],
+			"description": "Edit and create a virtual layout of your store!"
+		}
+		res.render('viewStore.html', template);
+	}
+	
+>>>>>>> edit_index
 	register : function(req, res) { 
 		var templateParameters = {
 			// Metadata options
