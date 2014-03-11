@@ -158,11 +158,10 @@ $(document).ready(function () {
 						$(this).attr("id", childPanel + k);
 					});
 				}
-
-				// Remove svg
-				eraseShelves(shelves, scale, activeShelfNumber);
 			}
 		}
+		// Remove svg
+		eraseShelves(shelves, scale);
 		$parentAccordion.accordion("refresh");
 	});
 
@@ -471,7 +470,7 @@ function drawExisting(shelves, scale){
 	}
 }
 
-function eraseShelves(shelves, scale, removeID) {
+function eraseShelves(shelves, scale) {
 	svg.selectAll(".shelf")
 		.remove();
 
