@@ -158,6 +158,9 @@ $(document).ready(function () {
 						$(this).attr("id", childPanel + k);
 					});
 				}
+
+				// Remove svg
+				eraseShelves(shelves, scale, activeShelfNumber);
 			}
 		}
 		$parentAccordion.accordion("refresh");
@@ -395,7 +398,7 @@ function drawShelves(shelves, scale){
 function drawSections(shelfIndex, shelves, scale, delay){
 
 	var selector = ".s" + shelfIndex;
-
+	var sectionIDnum = shelves[shelfIndex].sections.length - 1;
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfIndex].sections.length])
 		.range([0,495]);
@@ -412,9 +415,6 @@ function drawSections(shelfIndex, shelves, scale, delay){
 	// Add new sections
 	svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
 		.attr("x", function() {
-			console.log("domain size: " + domainSize);
-			console.log("shelfIndex: " + shelfIndex)
-			console.log("scale: " + scale(shelfIndex+1) + 5);
 			return scale(shelfIndex+1) + 5;
 		})
 		.attr("y", function(d,i) {
@@ -449,7 +449,9 @@ function drawExisting(shelves, scale){
 		.rangeRound([0,w]);
 
 	svg.selectAll(".shelf").data(shelves).enter().append("rect")
-		.attr("x", w+100) // initialize out of frame, then slide in
+		.attr("x", function(d,i) {
+			return scale(i+1);
+		})
 		.attr("y", strokePadding)
 		.attr("rx", 5)
 		.attr("ry", 5)
@@ -459,13 +461,22 @@ function drawExisting(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("opacity", 0)
 		.transition()
 		.duration(500)
-		.attr("x", function(d,i) {
-			return scale(i+1);
-		});
+		.attr("opacity", 1);
 
 	for(var index = 0; index < shelves.length; index++){
-		drawSections(index, shelves, scale, 500);
+		drawSections(index, shelves, scale, 100);
 	}
+}
+
+function eraseShelves(shelves, scale, removeID) {
+	svg.selectAll(".shelf")
+		.remove();
+
+	svg.selectAll(".section")
+		.remove();
+
+	drawExisting(shelves, scale);
 }
