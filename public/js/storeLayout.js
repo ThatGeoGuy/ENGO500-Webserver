@@ -28,6 +28,11 @@ var $deleteButton;
 var $saveButton;
 var $deleteAll;
 
+var w = 808;
+var h = w*2/3;
+var strokePadding = 1;
+var domainSize = 1;
+
 $(document).ready(function () {
 
 	$parentAccordion = $("#parentAccordion");
@@ -60,7 +65,7 @@ $(document).ready(function () {
 				makeAccordion( shelves, i, j + 1, "section");
 			}
 		}
-
+		manageSectionButton();
 		currentShelfNumber = shelves.length;
 	}
 
@@ -78,13 +83,13 @@ $(document).ready(function () {
 
 	// Add section button
 	$addSection.on("click", function (e) {
-			e.preventDefault();
+		e.preventDefault();
 
-			var activeShelfNumber = $parentAccordion.accordion("option", "active");
-			shelves[activeShelfNumber].sections.push( new sections() );
-			var newSectionNumber = shelves[activeShelfNumber].sections.length;
-			makeAccordion( shelves, activeShelfNumber, newSectionNumber, "section");
-			drawSections( activeShelfNumber, shelves, scale, 0 );
+		var activeShelfNumber = $parentAccordion.accordion("option", "active");
+		shelves[activeShelfNumber].sections.push( new sections() );
+		var newSectionNumber = shelves[activeShelfNumber].sections.length;
+		makeAccordion( shelves, activeShelfNumber, newSectionNumber, "section");
+		drawSections( activeShelfNumber, shelves, scale, 0 );
 	});
 
 	// Delete button
@@ -155,6 +160,8 @@ $(document).ready(function () {
 				}
 			}
 		}
+		// Remove svg
+		eraseShelves(shelves, scale);
 		$parentAccordion.accordion("refresh");
 	});
 
@@ -343,15 +350,11 @@ function addShelfToArray( shelvesArray ) {
 
 /* --------------- D3 --------------- */
 // look at viewbox example here: http://jsfiddle.net/NKRPe/60/
-var w = 808;
-var h = w*2/3;
-var strokePadding = 1;
-var domainSize = 1;
 
 /* Scale needs its domain to size the current of shelves + blank aisles, so update
 the scale domain anytime a shelf is added */
 scale = d3.scale.linear()
-	.domain([0,1])
+	.domain([0,domainSize])
 	.rangeRound([0,w]);
 
 function drawShelves(shelves, scale){
@@ -394,7 +397,7 @@ function drawShelves(shelves, scale){
 function drawSections(shelfIndex, shelves, scale, delay){
 
 	var selector = ".s" + shelfIndex;
-
+	var sectionIDnum = shelves[shelfIndex].sections.length - 1;
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfIndex].sections.length])
 		.range([0,495]);
@@ -416,7 +419,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
 		})
-		.attr("width", 40) // probably need to change the sizes
+		.attr("width", 40)
 		.attr("height", function(d,i) {
 			return 495/shelves[shelfIndex].sections.length - 5;
 		})
@@ -439,12 +442,15 @@ function drawSections(shelfIndex, shelves, scale, delay){
 }
 
 function drawExisting(shelves, scale){
+	domainSize = shelves.length + 1;
 	scale = d3.scale.linear()
-		.domain([0,shelves.length + 1])
+		.domain([0,domainSize])
 		.rangeRound([0,w]);
 
 	svg.selectAll(".shelf").data(shelves).enter().append("rect")
-		.attr("x", w+100) // initialize out of frame, then slide in
+		.attr("x", function(d,i) {
+			return scale(i+1);
+		})
 		.attr("y", strokePadding)
 		.attr("rx", 5)
 		.attr("ry", 5)
@@ -454,13 +460,22 @@ function drawExisting(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("opacity", 0)
 		.transition()
 		.duration(500)
-		.attr("x", function(d,i) {
-			return scale(i+1);
-		});
+		.attr("opacity", 1);
 
 	for(var index = 0; index < shelves.length; index++){
-		drawSections(index, shelves, scale, 500);
+		drawSections(index, shelves, scale, 100);
 	}
+}
+
+function eraseShelves(shelves, scale) {
+	svg.selectAll(".shelf")
+		.remove();
+
+	svg.selectAll(".section")
+		.remove();
+
+	drawExisting(shelves, scale);
 }
