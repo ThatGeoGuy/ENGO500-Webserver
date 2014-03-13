@@ -1,4 +1,4 @@
 *.~lock.*
 *.swp
 mongo/*
-scripts/mongodb/
+scripts/mongo/

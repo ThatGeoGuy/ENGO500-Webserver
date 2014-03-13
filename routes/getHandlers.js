@@ -8,7 +8,8 @@
 
 authors = [ 
 	"Ben Trodd",
-	"Jeremy Steward"
+	"Jeremy Steward",
+	"Kathleen Ang"
 ];
 
 module.exports = function(app, passport) { 
@@ -36,13 +37,20 @@ module.exports = function(app, passport) {
 			};
 			res.render('home.html', templateParameters);
 		} else { 
+			var templateParameters = {
+				// Metadata options
+				"title" : "Home",
+				"authors" : authors,
+				"description" : false,
 				// Navbar options
 				"navStatic" : true,
 				"home"    : true,
 			};
 			res.render('home.html', templateParameters);
+		/* I'm not sure what this is for but it was preventing me from running the server.
 		} else { 
 			res.redirect('/');
+		*/
 		}
 	});
 

@@ -8,7 +8,8 @@
 
 authors = [ 
 	"Ben Trodd",
-	"Jeremy Steward"
+	"Jeremy Steward",
+	"Kathleen Ang"
 ];
 
 module.exports = { 
@@ -48,10 +49,6 @@ module.exports = {
 		res.render('login.html', templateParameters);
 	}, 
 
-		};
-		res.render('index.html', templateParameters);
-	},
-
 	layout : function(req, res) { 
 		var templateParameters = { 
 			// Metadata options
@@ -77,21 +74,21 @@ module.exports = {
 	layout : function(req, res) { 
 		var template = { 
 			"title": "LASS - Store Layout Editor",
-			"authors": ["Ben Trodd", "Jeremy Steward"],
+			"authors": authors,
 			"description": "Edit and create a virtual layout of your store!"
-		}
+		};
 		res.render('layoutConfig.html', template);
 	},
+
 	viewstore : function(req, res) { 
 		var template = { 
 			"title": "LASS - Store Viewer",
-			"authors": ["Ben Trodd", "Jeremy Steward"],
+			"authors": authors,
 			"description": "Edit and create a virtual layout of your store!"
-		}
+		};
 		res.render('viewStore.html', template);
-	}
-	
->>>>>>> edit_index
+	},
+
 	register : function(req, res) { 
 		var templateParameters = {
 			// Metadata options
