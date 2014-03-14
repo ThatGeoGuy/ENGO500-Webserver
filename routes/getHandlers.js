@@ -21,7 +21,7 @@ module.exports = function(app, passport) {
 			"description" : "A location aware shelf system to find out what your customers want!",
 			// Navbar options
 			"navStatic" : true,
-			"index"    : true,
+			"index"     : true,
 		};
 		res.render('index.html', templateParameters);
 	});
@@ -30,27 +30,14 @@ module.exports = function(app, passport) {
 		if(req.isAuthenticated()) { 
 			var templateParameters = { 
 				// Metadata options
-				"title" : "Home",
-				"authors" : authors,
+				"title"       : "Home",
+				"authors"     : authors,
 				"description" : false,
-				"user": req.user.username,
+				"user"        : req.user.username,
 			};
 			res.render('home.html', templateParameters);
 		} else { 
-			var templateParameters = {
-				// Metadata options
-				"title" : "Home",
-				"authors" : authors,
-				"description" : false,
-				// Navbar options
-				"navStatic" : true,
-				"home"    : true,
-			};
-			res.render('home.html', templateParameters);
-		/* I'm not sure what this is for but it was preventing me from running the server.
-		} else { 
-			res.redirect('/');
-		*/
+			res.redirect('/login');
 		}
 	});
 
@@ -76,8 +63,8 @@ module.exports = function(app, passport) {
 		} else { 
 			var templateParameters = { 
 				// Metadata options
-				"title" : "Login",
-				"authors" : authors,
+				"title"       : "Login",
+				"authors"     : authors,
 				"description" : false,
 			};
 			res.render('login.html', templateParameters);
@@ -95,8 +82,8 @@ module.exports = function(app, passport) {
 		} else { 
 			var templateParameters = {
 				// Metadata options
-				"title" : "Register",
-				"authors" : authors,
+				"title"       : "Register",
+				"authors"     : authors,
 				"description" : false,
 			};
 			res.render('register.html', templateParameters);
@@ -106,9 +93,9 @@ module.exports = function(app, passport) {
 	app.get('/view-store', function(req, res) { 
 		if(req.isAuthenticated()) { 
 			var templateParameters = { 
-				"title": "Store Viewer",
-				"authors": ["Ben Trodd", "Jeremy Steward"],
-				"description": "Edit and create a virtual layout of your store!",
+				"title"       : "Store Viewer",
+				"authors"     : authors,
+				"description" : "Edit and create a virtual layout of your store!",
 				// Navbar options
 				"navStatic" : true,
 				"viewstore" : true,
