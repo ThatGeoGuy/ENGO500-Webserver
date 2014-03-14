@@ -1,4 +1,4 @@
-ul {
+.attributeUl {
 	font-weight: bold;
 	list-style-type: none;
 	padding: 0;
@@ -18,7 +18,7 @@ ul {
 }
 .button {
 	display: inline-block;
-	height: 20px;
+	height: 15px;
 	background-color: #2e6e9e;
 	font-family: arial;
 	font-weight: bold;
@@ -30,15 +30,21 @@ ul {
 }
 #addShelf {
 	float: right;
-	width: 80px;
+	width: 60px;
 }
 #addSection {
 	float: right;
-	width: 80px;
+	width: 75px;
 }
-.editPencil {
+#deleteButton {
+	float: left;
+	width: 20;
+}
+#saveButton {
 	float: right;
-	cursor: pointer;
+}
+#deleteAll {
+	float: right;
 }
 
 * {margin:0; padding:0} 
@@ -49,7 +55,7 @@ body {
 	height: 101%;
 	background: #fff;
 	color: #333;
-	font: 76%/1.6 verdana,geneva,lucida,'lucida grande',arial,helvetica,sans-serif;
+	/*font: 76%/1.6 verdana,geneva,lucida,'lucida grande',arial,helvetica,sans-serif;*/
 	text-align: center
 }
 #wrapper {
@@ -77,6 +83,7 @@ p {margin: 0 10px 1em}
 .clear {clear: both}
 img {border: 0 none}
 /* --- Headings --- */
+/*
 h1 {font-family: georgia,'times new roman',times,serif; font-size: 2.5em; font-weight: normal; color: #f60}
 
 h1, h2, h3 {margin-bottom: 1em}
@@ -84,5 +91,5 @@ h1, h2, h3 {margin-bottom: 1em}
 h2, h3, h4 a, h5 a {padding: 3px 10px}
 
 h2, h3, h4, h5 {font-size: 1em}
-
-#mainLeft h2, #mainRight h2 {background-color: #f0f0f0}
+*/
+#mainLeft h3, #mainRight h3 {background-color: #f0f0f0}
