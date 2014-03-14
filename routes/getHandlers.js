@@ -44,9 +44,9 @@ module.exports = function(app, passport) {
 	app.get('/layout', function(req, res) { 
 		if(req.isAuthenticated()) {
 			var templateParameters = { 
-				"title": "Store Layout Editor",
-				"authors": ["Ben Trodd", "Jeremy Steward"],
-				"description": "Edit and create a virtual layout of your store!",
+				"title"       : "Store Layout Editor",
+				"authors"     : authors,
+				"description" : "Edit and create a virtual layout of your store!",
 				// Navbar options
 				"navStatic" : true,
 				"layout"    : true,
