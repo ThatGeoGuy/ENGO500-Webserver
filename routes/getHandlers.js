@@ -19,7 +19,7 @@ module.exports = function(app, passport) {
 			"authors"     : authors,
 			"description" : "A location aware shelf system to find out what your customers want!",
 			// Navbar options
-			"navStatic" : true,
+			"navFixed" : true,
 			"index"    : true,
 		};
 		res.render('index.html', templateParameters);
@@ -35,28 +35,6 @@ module.exports = function(app, passport) {
 				"user": req.user.username,
 			};
 			res.render('home.html', templateParameters);
-		} else { 
-				// Navbar options
-				"navStatic" : true,
-				"home"    : true,
-			};
-			res.render('home.html', templateParameters);
-		} else { 
-			res.redirect('/');
-		}
-	});
-
-	app.get('/layout', function(req, res) { 
-		if(req.isAuthenticated()) {
-			var templateParameters = { 
-				"title": "Store Layout Editor",
-				"authors": ["Ben Trodd", "Jeremy Steward"],
-				"description": "Edit and create a virtual layout of your store!",
-				// Navbar options
-				"navStatic" : true,
-				"layout"    : true,
-			}
-			res.render('layoutConfig.html', templateParameters);
 		} else { 
 			res.redirect('/login');
 		}
@@ -82,32 +60,12 @@ module.exports = function(app, passport) {
 	});
 	
 	app.get('/signup', function(req, res) { 
-		if(req.isAuthenticated()) { 
-			res.redirect('/home');
-		} else { 
-			var templateParameters = {
-				// Metadata options
-				"title" : "Register",
-				"authors" : authors,
-				"description" : false,
-			};
-			res.render('register.html', templateParameters);
-		}
-	});
-
-	app.get('/view-store', function(req, res) { 
-		if(req.isAuthenticated()) { 
-			var templateParameters = { 
-				"title": "Store Viewer",
-				"authors": ["Ben Trodd", "Jeremy Steward"],
-				"description": "Edit and create a virtual layout of your store!",
-				// Navbar options
-				"navStatic" : true,
-				"viewstore" : true,
-			}
-			res.render('viewStore.html', templateParameters);
-		} else { 
-			res.redirect('/login');
-		}
+		var templateParameters = {
+			// Metadata options
+			"title" : "Register",
+			"authors" : authors,
+			"description" : false,
+		};
+		res.render('register.html', templateParameters);
 	});
 }

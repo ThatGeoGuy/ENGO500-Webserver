@@ -1,24 +1,12 @@
 {% extends "base.html" %}
 {% block CSS %}
+{% if navFixed %}
+		<link rel='stylesheet' type='text/css' href='/css/navbar-fixed.css'>
+{% endif %}
 {% endblock %}
 
 {% block CONTENT %}
-{% include "navigationBar.html" %}
-
-<div class="container">
-	
-	<div class = "jumbotron text-center">
-		<h1>Welcome!</h1>
-		<p>In this little description I would probably tell you briefly what our product is and does</p>
-		<a class = "btn btn-default">See how it works</a>
-	</div>
-	
-</div>
-
-
-
-{% include "footer.html" %}
-
+	{% include "navigationBar.html" %}
 {% endblock %}
 
 {% block SCRIPTS %}
