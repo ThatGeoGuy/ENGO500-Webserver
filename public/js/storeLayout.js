@@ -355,24 +355,42 @@ function addShelfToArray( shelvesArray ) {
 the scale domain anytime a shelf is added */
 scale = d3.scale.linear()
 	.domain([0,domainSize])
-	.rangeRound([0,w]);
+	.rangeRound([0,w/2]);
+
+function isOdd(num) { 
+	return (num % 2) == 1;
+}
 
 function drawShelves(shelves, scale){
-	domainSize++;
+	// If nShelves is odd, a new scale needs to be calculated to add space for two new shelves
+	if( isOdd(shelves.length) ){
+		domainSize++;
+	}
 	scale.domain([0,domainSize])
+	
 	// Move exisiting shelves and sections
 	svg.transition().selectAll(".shelf")
 			.duration(500)
 			.attr("x", function(d,i) {
-				return scale(i+1);
+				if( isOdd(i) ){
+					return scale(i) + 25;
+				} else {
+					return scale(i+1) - 25;
+				}
 			});
-	for(var i=0; i<shelves.length; i++){
-		var selector = ".s" + i;
-		svg.transition().selectAll(selector)
-		.duration(500)
-		.attr("x", function() {
-			return scale(i+1) + 5;
-		});
+	if( isOdd(shelves.length)){
+		for(var i=0; i<shelves.length; i++){
+			var selector = ".shelf" + i;
+			svg.transition().selectAll(selector)
+			.duration(500)
+			.attr("x", function() {
+				if( isOdd(i) ){
+					return scale(i) + 30;
+				} else {
+					return scale(i+1) - 20;
+				}
+			});
+		}
 	}
 
 	// Add the newest shelf
@@ -387,16 +405,23 @@ function drawShelves(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("id", function (d,i) {
+			return "shelf" + i;
+		})
 		.transition()
 		.duration(500)
 		.attr("x", function(d,i) {
-			return scale(i+1);
+			if( isOdd(i) ){
+				return scale(i) + 25;
+			} else {
+				return scale(i+1) - 25;
+			}
 		});
 }
 
 function drawSections(shelfIndex, shelves, scale, delay){
 
-	var selector = ".s" + shelfIndex;
+	var selector = ".shelf" + shelfIndex;
 	var sectionIDnum = shelves[shelfIndex].sections.length - 1;
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfIndex].sections.length])
@@ -413,8 +438,12 @@ function drawSections(shelfIndex, shelves, scale, delay){
 
 	// Add new sections
 	svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
-		.attr("x", function() {
-			return scale(shelfIndex+1) + 5;
+		.attr("x", function () {
+			if( isOdd(shelfIndex) ){
+				return scale(shelfIndex) + 30;
+			} else {
+				return scale(shelfIndex+1) - 20;
+			}
 		})
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
@@ -426,7 +455,10 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("rx", 5)
 		.attr("ry", 5)
 		.attr("fill", "#2E6E9E")
-		.attr("class", "section s" + shelfIndex)
+		.attr("class", "section shelf" + shelfIndex)
+		.attr("id", function (d,i) {
+			return "shelf" + shelfIndex + "sect" + i;
+		})
 		.attr("opacity", 0)
 		// Open accordion associated with this element when clicked
 		.attr("cursor", "pointer")
@@ -442,14 +474,23 @@ function drawSections(shelfIndex, shelves, scale, delay){
 }
 
 function drawExisting(shelves, scale){
-	domainSize = shelves.length + 1;
+	if( isOdd(shelves.length) ){
+		domainSize = shelves.length / 2 + 1;
+	} else {
+		domainSize = ( shelves.length + 1 ) / 2 + 1;
+	}
+	
 	scale = d3.scale.linear()
 		.domain([0,domainSize])
-		.rangeRound([0,w]);
+		.rangeRound([0,w/2]);
 
 	svg.selectAll(".shelf").data(shelves).enter().append("rect")
 		.attr("x", function(d,i) {
-			return scale(i+1);
+			if( isOdd(i) ){
+				return scale(i) + 25;
+			} else {
+				return scale(i+1) - 25;
+			}
 		})
 		.attr("y", strokePadding)
 		.attr("rx", 5)
@@ -460,6 +501,9 @@ function drawExisting(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("id", function (d,i) {
+			return "shelf" + i;
+		})
 		.attr("opacity", 0)
 		.transition()
 		.duration(500)
