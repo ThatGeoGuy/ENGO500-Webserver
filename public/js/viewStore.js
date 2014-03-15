@@ -27,84 +27,48 @@ $(document).ready(function () {
 		drawExisting(shelves, scale);
 	}
 
+	// Make GET requests synchronous
+	$.ajaxSetup({
+		async: false
+	});
 	// Monitor datastreams for changes
 	var tid = setInterval( function() { getObs() }, 5000);
 
 });
 
 function getObs() {
-	if( shelves[0].sections[0].pintURL != null ){
-
-		/*
-		var req = new XMLHttpRequest();
-		req.open('GET', shelves[0].sections[0].pintURL, true);
-
-		req.onload = function() {
-			console.log("onload");
-			if(this.status == 200) {
-				var obs = JSON.parse(this.response);
-				console.log(obs);
-				checkObs(obs);
-			}
-		}
-		
-		req.send();
-		*/
-		
-		/*
-		var obsJSON = jQuery.get(shelves[0].sections[0].pintURL, function ( data, textStatus, xhr ) {
+	
+		// Loop through all shelves and all sections!! Yikes.
+	for( var i = 0; i < shelves.length; i++ )	{
+	for( var j = 0; j < shelves[i].sections.length; j++){
+		if( shelves[i].sections[j].pintURL != null ){
+		console.log(i);
+		console.log(j);
+		var previ = i;
+		var prevj = j;
+		jQuery.get(shelves[previ].sections[prevj].pintURL, function ( data, textStatus, xhr ) {
 			console.log(xhr.status);
-			checkObs(obsJSON);
-		)
-		*/
-		if( cached == false ){
-
-			var obs = $.ajax(shelves[0].sections[0].pintURL, {
-				async: true,
-				beforeSend: function (req){
-					console.log("Last modified sent as: " + lastMod);
-					lastMod = req.setRequestHeader("If-Modified-Since", lastMod);
-				},
-				success: function (data, status, httpRequest){
-					// lastMod = httpRequest.getResponseHeader("Last-Modified");
-					console.log("last modified received as: " + lastMod);
-					cached = true;
-					checkObs(obs);
-				}
-			} )
-
-		} else {
-			var obs = $.ajax(shelves[0].sections[0].pintURL, {
-				async: true,
-				beforeSend: function (req){
-					console.log("Last modified sent as: " + lastMod);
-					req.setRequestHeader("If-Modified-Since", lastMod);
-				},
-				success: function (data, status, httpRequest){
-					//if( httpRequest.status == 200 ){
-						console.log("200 received");
-						lastMod = httpRequest.getResponseHeader("Last-Modified");
-						checkObs(obs);
-					//}
-				}
-			});
-		}
-	}
+			if(xhr.status < 400){
+				checkObs(data, previ, prevj);
+			}
+		});
 }
-
-function checkObs (obsJSON) {
-	newObs = obsJSON.responseJSON;
+}
+}
+}
+function checkObs (obsJSON, shelfInd, sectionInd) {
+	newObs = obsJSON;
 	if( newObs.Observations[newObs.Observations.length - 1].ResultValue == 1 ){
-		displayObs(0, shelves, scale, 1);
+		displayObs(shelfInd, sectionInd, shelves, scale, 1);
 	} else {
-		displayObs(0, shelves, scale, 0);
+		displayObs(shelfInd, sectionInd, shelves, scale, 0);
 	}
 	oldObs = newObs;
 }
 
 
-function displayObs(shelfIndex, shelves, scale, state){
-	var selector = ".shelf" + shelfIndex;
+function displayObs(shelfInd, sectionInd, shelves, scale, state){
+	var selector = "#shelf" + shelfInd + "sect" + sectionInd;
 	
 	if( state == 1){
 		svg.transition().selectAll(selector)
