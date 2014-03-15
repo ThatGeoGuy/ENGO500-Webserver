@@ -34,6 +34,9 @@ module.exports = function(app, passport) {
 				"authors"     : authors,
 				"description" : false,
 				"user"        : req.user.username,
+				// Navbar options
+				"navStatic" : true,
+				"home"     : true,
 			};
 			res.render('home.html', templateParameters);
 		} else { 
