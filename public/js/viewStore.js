@@ -14,6 +14,9 @@ var domainSize = 1;
 var cached = false; // will need to be array later
 var lastMod;
 
+var heatRamp = ["#FFFF00", "#FFDD00", "#FFBB00", "#FF9900",
+				"#FF7700", "#FF5500", "#FF3300", "#FF1100"];
+
 $(document).ready(function () {
 	svg = d3.select('#d3').append("svg")
 		.attr("width", w)
@@ -208,5 +211,43 @@ function drawExisting(shelves, scale){
 
 	for(var index = 0; index < shelves.length; index++){
 		drawSections(index, shelves, scale, 500);
+		addHeat(index, shelves, scale);
 	}
+}
+
+function addHeat( shelfInd, shelves, scale ) {
+	var sectionScale = d3.scale.linear()
+		.domain([0, shelves[shelfInd].sections.length])
+		.range([0,495]);
+
+	var heatWidth = (scale(1) - scale(0)) * 2 - 2 * 50;
+	var heatHeight = 495/shelves[shelfInd].sections.length - 5;
+
+	svg.selectAll(".heat" + shelfInd).data(shelves[shelfInd].sections).enter().append("rect")
+		.attr("x", function () {
+			if( isOdd(shelfInd) ){
+				return scale(shelfInd) + 75;
+			} else {
+				return scale(shelfInd + 1) - 25 - heatWidth;
+			}
+		})
+		.attr("y", function(d,i) {
+			return sectionScale(i) + 5;
+		})
+		.attr("rx", 5)
+		.attr("ry", 5)
+		.attr("width", heatWidth)
+		.attr("height", function(d,i) {
+			return 495/shelves[shelfInd].sections.length - 5;
+		})
+		.attr("fill", heatRamp[3])
+		.attr("stroke-width", strokePadding)
+		.attr("class", function (d,i) {
+			return "heat" + shelfInd;
+		})
+		.attr("id", function (d,i) {
+			console.log("Creating " + shelfInd + " " + i);
+			return "heats" + shelfInd + "s" + i;
+		})
+		.attr("opacity", 0.3);
 }
