@@ -2,6 +2,11 @@
 
 {% block CONTENT %}
 
-<p>Hello {{user}}</p>
+{% include "navigationBar.html" %}
+<div class="container">
+	<h1>Welcome, {{user}}!</h1>
+</div>
 
+
+{% include "footer.html" %}
 {% endblock %}
