@@ -104,7 +104,7 @@ function checkObs (obsJSON) {
 
 
 function displayObs(shelfIndex, shelves, scale, state){
-	var selector = ".s" + shelfIndex;
+	var selector = ".shelf" + shelfIndex;
 	
 	if( state == 1){
 		svg.transition().selectAll(selector)
@@ -122,7 +122,7 @@ function displayObs(shelfIndex, shelves, scale, state){
 
 function drawSections(shelfIndex, shelves, scale, delay){
 
-	var selector = ".s" + shelfIndex;
+	var selector = ".shelf" + shelfIndex;
 
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfIndex].sections.length])
@@ -152,7 +152,10 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("rx", 5)
 		.attr("ry", 5)
 		.attr("fill", "#2E6E9E")
-		.attr("class", "section s" + shelfIndex)
+		.attr("class", "section shelf" + shelfIndex)
+		.attr("id", function (d,i) {
+			return "shelf" + shelfIndex +"sect" + i;
+		})
 		.attr("opacity", 0)
 		.transition()
 		.delay(delay)
@@ -176,6 +179,9 @@ function drawExisting(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("id", function (d,i) {
+			return "shelf" + i;
+		})
 		.transition()
 		.duration(500)
 		.attr("x", function(d,i) {

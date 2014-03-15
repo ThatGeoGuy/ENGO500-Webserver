@@ -367,7 +367,7 @@ function drawShelves(shelves, scale){
 				return scale(i+1);
 			});
 	for(var i=0; i<shelves.length; i++){
-		var selector = ".s" + i;
+		var selector = ".shelf" + i;
 		svg.transition().selectAll(selector)
 		.duration(500)
 		.attr("x", function() {
@@ -387,6 +387,9 @@ function drawShelves(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("id", function (d,i) {
+			return "shelf" + i;
+		})
 		.transition()
 		.duration(500)
 		.attr("x", function(d,i) {
@@ -396,7 +399,7 @@ function drawShelves(shelves, scale){
 
 function drawSections(shelfIndex, shelves, scale, delay){
 
-	var selector = ".s" + shelfIndex;
+	var selector = ".shelf" + shelfIndex;
 	var sectionIDnum = shelves[shelfIndex].sections.length - 1;
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfIndex].sections.length])
@@ -426,7 +429,10 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("rx", 5)
 		.attr("ry", 5)
 		.attr("fill", "#2E6E9E")
-		.attr("class", "section s" + shelfIndex)
+		.attr("class", "section shelf" + shelfIndex)
+		.attr("id", function (d,i) {
+			return "shelf" + shelfIndex + "sect" + i;
+		})
 		.attr("opacity", 0)
 		// Open accordion associated with this element when clicked
 		.attr("cursor", "pointer")
@@ -460,6 +466,9 @@ function drawExisting(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("id", function (d,i) {
+			return "shelf" + i;
+		})
 		.attr("opacity", 0)
 		.transition()
 		.duration(500)
