@@ -2,3 +2,4 @@
 *.swp
 mongo/*
 scripts/mongodb/
+scripts/mongo/

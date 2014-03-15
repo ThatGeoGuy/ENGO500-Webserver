@@ -104,7 +104,7 @@ function checkObs (obsJSON) {
 
 
 function displayObs(shelfIndex, shelves, scale, state){
-	var selector = ".s" + shelfIndex;
+	var selector = ".shelf" + shelfIndex;
 	
 	if( state == 1){
 		svg.transition().selectAll(selector)
@@ -120,9 +120,13 @@ function displayObs(shelfIndex, shelves, scale, state){
 
 }
 
+function isOdd(num) { 
+	return (num % 2) == 1;
+}
+
 function drawSections(shelfIndex, shelves, scale, delay){
 
-	var selector = ".s" + shelfIndex;
+	var selector = ".shelf" + shelfIndex;
 
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfIndex].sections.length])
@@ -139,8 +143,12 @@ function drawSections(shelfIndex, shelves, scale, delay){
 
 	// Add new sections
 	svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
-		.attr("x", function() {
-			return scale(shelfIndex+1) + 5;
+		.attr("x", function () {
+			if( isOdd(shelfIndex) ){
+				return scale(shelfIndex) + 30;
+			} else {
+				return scale(shelfIndex+1) - 20;
+			}
 		})
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
@@ -152,7 +160,10 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("rx", 5)
 		.attr("ry", 5)
 		.attr("fill", "#2E6E9E")
-		.attr("class", "section s" + shelfIndex)
+		.attr("class", "section shelf" + shelfIndex)
+		.attr("id", function (d,i) {
+			return "shelf" + shelfIndex +"sect" + i;
+		})
 		.attr("opacity", 0)
 		.transition()
 		.delay(delay)
@@ -161,9 +172,15 @@ function drawSections(shelfIndex, shelves, scale, delay){
 }
 
 function drawExisting(shelves, scale){
+	if( isOdd(shelves.length) ){
+		domainSize = shelves.length / 2 + 1;
+	} else {
+		domainSize = ( shelves.length + 1 ) / 2 + 1;
+	}
+	
 	scale = d3.scale.linear()
-		.domain([0,shelves.length + 1])
-		.rangeRound([0,w]);
+		.domain([0,domainSize])
+		.rangeRound([0,w/2]);
 
 	svg.selectAll(".shelf").data(shelves).enter().append("rect")
 		.attr("x", w+100) // initialize out of frame, then slide in
@@ -176,10 +193,17 @@ function drawExisting(shelves, scale){
 		.attr("stroke",  "#2E6E9E")
 		.attr("stroke-width", strokePadding)
 		.attr("class", "shelf")
+		.attr("id", function (d,i) {
+			return "shelf" + i;
+		})
 		.transition()
 		.duration(500)
 		.attr("x", function(d,i) {
-			return scale(i+1);
+			if( isOdd(i) ){
+				return scale(i) + 25;
+			} else {
+				return scale(i+1) - 25;
+			}
 		});
 
 	for(var index = 0; index < shelves.length; index++){
