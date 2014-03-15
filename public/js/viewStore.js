@@ -32,30 +32,39 @@ $(document).ready(function () {
 		async: false
 	});
 	// Monitor datastreams for changes
-	var tid = setInterval( function() { getObs() }, 5000);
+	var obsTypeStock = 1; // Photo interrupter!
+	var tid = setInterval( function() { getObs(obsTypeStock) }, 5000);
+	/*var obsTypeMotion = 0; // PIR Motion sensor!
+	var tid = setInterval( function() { getObs(obsTypeMotion) }, 3000);*/
 
 });
 
-function getObs() {
+function getObs(obsType) {
 	
 		// Loop through all shelves and all sections!! Yikes.
 	for( var i = 0; i < shelves.length; i++ )	{
-	for( var j = 0; j < shelves[i].sections.length; j++){
-		if( shelves[i].sections[j].pintURL != null ){
-		console.log(i);
-		console.log(j);
-		var previ = i;
-		var prevj = j;
-		jQuery.get(shelves[previ].sections[prevj].pintURL, function ( data, textStatus, xhr ) {
-			console.log(xhr.status);
-			if(xhr.status < 400){
-				checkObs(data, previ, prevj);
+		for( var j = 0; j < shelves[i].sections.length; j++){
+			if (obsType == 0){
+				var obsURL = shelves[i].sections[j].pirURL;
+			}else if (obsType == 1){
+				var obsURL = shelves[i].sections[j].pintURL;
 			}
-		});
+			if( obsURL != null ){
+				console.log(i);
+				console.log(j);
+				var previ = i;
+				var prevj = j;
+				jQuery.get(obsURL, function ( data, textStatus, xhr ) {
+					console.log(xhr.status);
+					if(xhr.status < 400){
+						checkObs(data, i, j);
+					}
+				});
+			}
+		}
+	}
 }
-}
-}
-}
+
 function checkObs (obsJSON, shelfInd, sectionInd) {
 	newObs = obsJSON;
 	if( newObs.Observations[newObs.Observations.length - 1].ResultValue == 1 ){
