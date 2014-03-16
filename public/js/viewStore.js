@@ -14,6 +14,9 @@ var domainSize = 1;
 var cached = false; // will need to be array later
 var lastMod;
 
+var heatRamp = ["#FFFF00", "#FFDD00", "#FFBB00", "#FF9900",
+				"#FF7700", "#FF5500", "#FF3300", "#FF1100"];
+
 $(document).ready(function () {
 	svg = d3.select('#d3').append("svg")
 		.attr("width", w)
@@ -32,42 +35,55 @@ $(document).ready(function () {
 		async: false
 	});
 	// Monitor datastreams for changes
-	var tid = setInterval( function() { getObs() }, 5000);
-
+	// Photo interrupter!
+	var tids = setInterval( function() { getObs("stock") }, 5000);
+	// PIR Motion sensor!
+	var tidm = setInterval( function() { getObs("motion") }, 3000);
 });
 
-function getObs() {
+function getObs(obsType) {
 	
 		// Loop through all shelves and all sections!! Yikes.
 	for( var i = 0; i < shelves.length; i++ )	{
-	for( var j = 0; j < shelves[i].sections.length; j++){
-		if( shelves[i].sections[j].pintURL != null ){
-		console.log(i);
-		console.log(j);
-		var previ = i;
-		var prevj = j;
-		jQuery.get(shelves[previ].sections[prevj].pintURL, function ( data, textStatus, xhr ) {
-			console.log(xhr.status);
-			if(xhr.status < 400){
-				checkObs(data, previ, prevj);
+		for( var j = 0; j < shelves[i].sections.length; j++){
+			if (obsType == "motion"){ // PIR Motion sensor
+				var obsURL = shelves[i].sections[j].pirURL;
+			}else if (obsType == "stock"){ // Photo interrupter
+				var obsURL = shelves[i].sections[j].pintURL;
 			}
-		});
+			if( obsURL != null ){
+				console.log(i);
+				console.log(j);
+				jQuery.get(obsURL, function ( data, textStatus, xhr ) {
+					console.log(xhr.status);
+					if(xhr.status < 400){
+						checkObs(data, obsType, i, j);
+					}
+				});
+			}
+		}
+	}
 }
-}
-}
-}
-function checkObs (obsJSON, shelfInd, sectionInd) {
+
+function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	newObs = obsJSON;
 	if( newObs.Observations[newObs.Observations.length - 1].ResultValue == 1 ){
-		displayObs(shelfInd, sectionInd, shelves, scale, 1);
+		if( obsType == "stock"){
+			displayStock(shelfInd, sectionInd, shelves, 1);
+		} else if ( obsType == "motion" ){
+			console.log("shelf: " + shelfInd + " section: " + sectionInd);
+			displayMotion(shelfInd, sectionInd, shelves);
+		}
 	} else {
-		displayObs(shelfInd, sectionInd, shelves, scale, 0);
+		if( obsType == "stock"){
+			displayMotion(shelfInd, sectionInd, shelves);
+		}
 	}
 	oldObs = newObs;
 }
 
 
-function displayObs(shelfInd, sectionInd, shelves, scale, state){
+function displayStock(shelfInd, sectionInd, shelves, state){
 	var selector = "#shelf" + shelfInd + "sect" + sectionInd;
 	
 	if( state == 1){
@@ -82,6 +98,19 @@ function displayObs(shelfInd, sectionInd, shelves, scale, state){
 			.duration(500);
 	}
 
+}
+
+function displayMotion(shelfInd, sectionInd, shelves){
+	console.log("About to display motion");
+	var selector = "#heats" + shelfInd + "s" + sectionInd;
+
+	svg.selectAll(selector)
+		.transition().duration(300)
+		.attr("opacity", 0.5);
+
+	svg.selectAll(selector)
+		.transition().delay(300).duration(12000)
+		.attr("opacity", 0);
 }
 
 function isOdd(num) { 
@@ -172,5 +201,43 @@ function drawExisting(shelves, scale){
 
 	for(var index = 0; index < shelves.length; index++){
 		drawSections(index, shelves, scale, 500);
+		addHeat(index, shelves, scale);
 	}
+}
+
+function addHeat( shelfInd, shelves, scale ) {
+	var sectionScale = d3.scale.linear()
+		.domain([0, shelves[shelfInd].sections.length])
+		.range([0,495]);
+
+	var heatWidth = (scale(1) - scale(0)) * 2 - 2 * 50;
+	var heatHeight = 495/shelves[shelfInd].sections.length - 5;
+
+	svg.selectAll(".heat" + shelfInd).data(shelves[shelfInd].sections).enter().append("rect")
+		.attr("x", function () {
+			if( isOdd(shelfInd) ){
+				return scale(shelfInd) + 75;
+			} else {
+				return scale(shelfInd + 1) - 25 - heatWidth;
+			}
+		})
+		.attr("y", function(d,i) {
+			return sectionScale(i) + 5;
+		})
+		.attr("rx", 5)
+		.attr("ry", 5)
+		.attr("width", heatWidth)
+		.attr("height", function(d,i) {
+			return 495/shelves[shelfInd].sections.length - 5;
+		})
+		.attr("fill", heatRamp[4])
+		.attr("stroke-width", strokePadding)
+		.attr("class", function (d,i) {
+			return "heat" + shelfInd;
+		})
+		.attr("id", function (d,i) {
+			console.log("Creating " + shelfInd + " " + i);
+			return "heats" + shelfInd + "s" + i;
+		})
+		.attr("opacity", 0);
 }
