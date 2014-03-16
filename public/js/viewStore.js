@@ -35,11 +35,10 @@ $(document).ready(function () {
 		async: false
 	});
 	// Monitor datastreams for changes
-	var obsTypeStock = 1; // Photo interrupter!
-	var tid = setInterval( function() { getObs(obsTypeStock) }, 5000);
-	/*var obsTypeMotion = 0; // PIR Motion sensor!
-	var tid = setInterval( function() { getObs(obsTypeMotion) }, 3000);*/
-
+	// Photo interrupter!
+	var tids = setInterval( function() { getObs("stock") }, 5000);
+	// PIR Motion sensor!
+	var tidm = setInterval( function() { getObs("motion") }, 3000);
 });
 
 function getObs(obsType) {
@@ -47,20 +46,18 @@ function getObs(obsType) {
 		// Loop through all shelves and all sections!! Yikes.
 	for( var i = 0; i < shelves.length; i++ )	{
 		for( var j = 0; j < shelves[i].sections.length; j++){
-			if (obsType == 0){
+			if (obsType == "motion"){ // PIR Motion sensor
 				var obsURL = shelves[i].sections[j].pirURL;
-			}else if (obsType == 1){
+			}else if (obsType == "stock"){ // Photo interrupter
 				var obsURL = shelves[i].sections[j].pintURL;
 			}
 			if( obsURL != null ){
 				console.log(i);
 				console.log(j);
-				var previ = i;
-				var prevj = j;
 				jQuery.get(obsURL, function ( data, textStatus, xhr ) {
 					console.log(xhr.status);
 					if(xhr.status < 400){
-						checkObs(data, i, j);
+						checkObs(data, obsType, i, j);
 					}
 				});
 			}
@@ -68,18 +65,25 @@ function getObs(obsType) {
 	}
 }
 
-function checkObs (obsJSON, shelfInd, sectionInd) {
+function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	newObs = obsJSON;
 	if( newObs.Observations[newObs.Observations.length - 1].ResultValue == 1 ){
-		displayObs(shelfInd, sectionInd, shelves, scale, 1);
+		if( obsType == "stock"){
+			displayStock(shelfInd, sectionInd, shelves, 1);
+		} else if ( obsType == "motion" ){
+			console.log("shelf: " + shelfInd + " section: " + sectionInd);
+			displayMotion(shelfInd, sectionInd, shelves);
+		}
 	} else {
-		displayObs(shelfInd, sectionInd, shelves, scale, 0);
+		if( obsType == "stock"){
+			displayMotion(shelfInd, sectionInd, shelves);
+		}
 	}
 	oldObs = newObs;
 }
 
 
-function displayObs(shelfInd, sectionInd, shelves, scale, state){
+function displayStock(shelfInd, sectionInd, shelves, state){
 	var selector = "#shelf" + shelfInd + "sect" + sectionInd;
 	
 	if( state == 1){
@@ -94,6 +98,19 @@ function displayObs(shelfInd, sectionInd, shelves, scale, state){
 			.duration(500);
 	}
 
+}
+
+function displayMotion(shelfInd, sectionInd, shelves){
+	console.log("About to display motion");
+	var selector = "#heats" + shelfInd + "s" + sectionInd;
+
+	svg.selectAll(selector)
+		.transition().duration(300)
+		.attr("opacity", 0.5);
+
+	svg.selectAll(selector)
+		.transition().delay(300).duration(12000)
+		.attr("opacity", 0);
 }
 
 function isOdd(num) { 
@@ -213,7 +230,7 @@ function addHeat( shelfInd, shelves, scale ) {
 		.attr("height", function(d,i) {
 			return 495/shelves[shelfInd].sections.length - 5;
 		})
-		.attr("fill", heatRamp[3])
+		.attr("fill", heatRamp[4])
 		.attr("stroke-width", strokePadding)
 		.attr("class", function (d,i) {
 			return "heat" + shelfInd;
@@ -222,5 +239,5 @@ function addHeat( shelfInd, shelves, scale ) {
 			console.log("Creating " + shelfInd + " " + i);
 			return "heats" + shelfInd + "s" + i;
 		})
-		.attr("opacity", 0.3);
+		.attr("opacity", 0);
 }
