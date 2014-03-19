@@ -52,8 +52,9 @@ function getObs(obsType) {
 				var obsURL = shelves[i].sections[j].pintURL;
 			}
 			if( obsURL != null ){
-				console.log(i);
+				/*console.log(i);
 				console.log(j);
+				console.log(obsType);*/
 				jQuery.get(obsURL, function ( data, textStatus, xhr ) {
 					console.log(xhr.status);
 					if(xhr.status < 400){
@@ -76,7 +77,7 @@ function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 		}
 	} else {
 		if( obsType == "stock"){
-			displayMotion(shelfInd, sectionInd, shelves);
+			displayStock(shelfInd, sectionInd, shelves);
 		}
 	}
 	oldObs = newObs;
