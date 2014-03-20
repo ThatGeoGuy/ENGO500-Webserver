@@ -47,7 +47,7 @@ module.exports = function(app, passport) {
 				}
 			});
 		} else { 
-			res.send(403); 
+			res.send(401); 
 		}
 	});
 }
