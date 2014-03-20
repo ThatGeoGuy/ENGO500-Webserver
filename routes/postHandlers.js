@@ -28,4 +28,26 @@ module.exports = function(app, passport) {
 			});
 		});
 	});
+
+	app.post('/set-user-data', function(req, res) { 
+		if(req.isAuthenticated()) { 
+			//User.findByIdAndUpdate(req.user.id, { userData: JSON.stringify(req.body) });
+			User.findById(req.user.id, function(err, doc) { 
+				console.log(doc.userData);
+				if(err) { 
+					req.send(500);
+				} else { 
+					doc.userData = JSON.stringify(req.body);
+					doc.markModified('userData');
+					doc.save();
+
+					console.log(doc.username);
+					console.log(doc.userData);
+					res.send(200);
+				}
+			});
+		} else { 
+			res.send(403); 
+		}
+	});
 }

@@ -6,7 +6,10 @@
  * Description: Defines all the functions where the server will handle an HTTP GET request.
  */
 
-authors = [ 
+var User = require("../models/userSchema"),
+	Auth = require("../config/auth");
+
+var authors = [ 
 	"Ben Trodd",
 	"Jeremy Steward",
 	"Kathleen Ang"
@@ -27,7 +30,7 @@ module.exports = function(app, passport) {
 	});
 
 	app.get('/home', function(req, res) { 
-		if(req.isAuthenticated()) { 
+		Auth.isAuthenticated(req, res, function() { 
 			var templateParameters = { 
 				// Metadata options
 				"title"       : "Home",
@@ -39,13 +42,11 @@ module.exports = function(app, passport) {
 				"home"     : true,
 			};
 			res.render('home.html', templateParameters);
-		} else { 
-			res.redirect('/login');
-		}
+		});
 	});
 
 	app.get('/layout', function(req, res) { 
-		if(req.isAuthenticated()) {
+		Auth.isAuthenticated(req, res, function() { 
 			var templateParameters = { 
 				// Metadata options
 				"title"       : "Store Layout Editor",
@@ -56,9 +57,7 @@ module.exports = function(app, passport) {
 				"layout"    : true,
 			}
 			res.render('layoutConfig.html', templateParameters);
-		} else { 
-			res.redirect('/login');
-		}
+		});
 	});
 
 	app.get('/login', function(req, res) { 
@@ -95,7 +94,7 @@ module.exports = function(app, passport) {
 	});
 
 	app.get('/view-store', function(req, res) { 
-		if(req.isAuthenticated()) { 
+		Auth.isAuthenticated(req, res, function() {
 			var templateParameters = { 
 				// Metadata options
 				"title"       : "Store Viewer",
@@ -106,8 +105,23 @@ module.exports = function(app, passport) {
 				"viewstore" : true,
 			}
 			res.render('viewStore.html', templateParameters);
-		} else { 
-			res.redirect('/login');
-		}
+		});
+	});
+
+	app.get('/get-user-data', function(req, res) { 
+		Auth.isAuthenticated(req, res, function() { 
+			User.findById(req.user.id, function(err, doc) { 
+				console.log(doc.userData);
+				if(err) { 
+					res.send(500);
+				} else {
+					res.set({
+						"Content-Type": "application/json",
+						"Content-Length": doc.userData.length
+					});
+					res.send(doc.userData);
+				}
+			});
+		});
 	});
 }

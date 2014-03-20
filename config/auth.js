@@ -3,7 +3,7 @@
  * File: auth.js
  * Author: Jeremy Steward
  * Date: 2014-02-23 @ 19:33:02
- * Description: Defines methods to determine if a user exists and / or is authenticated in a session.
+ * Description: Defines helper methods for user authentication checking and updates. 
  */
 
 var User = require('../models/userSchema');

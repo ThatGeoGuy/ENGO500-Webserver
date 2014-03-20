@@ -11,6 +11,7 @@ var mongoose = require('mongoose'),
 
 UserSchema = mongoose.Schema({
 	username:  String,
+	userData:  String,
 	salt:      String,
 	hash:      String
 });
@@ -25,6 +26,7 @@ UserSchema.statics.signup = function(username, password, done) {
 		
 		var newUser = { 
 			username:  username,
+			userData:  "{}",
 			salt:      salt,
 			hash:      hash
 		};
