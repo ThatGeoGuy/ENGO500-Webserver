@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block CSS %}
 <link rel='stylesheet' href='http://code.jquery.com/ui/1.10.4/themes/redmond/jquery-ui.css'>
+<link rel='stylesheet' href='/css/viewStore.css'>
 {% endblock %}
 
 {% block CONTENT %}
@@ -9,15 +10,16 @@
 
 <div id='wrapper' class='container'> 
 	<div id='content'>
-
-					<div id='view'>
-						<div id='d3'></div>
-					</div>
-
-				<div class='accordion'> <!--rename to accordionTemplate -->
-					<h3 class='accordion-title'></h3>
-					<div class='accordion-content'></div>
-				</div>
+		<div id='mainLeft'>
+			<div id='graph' class="aBarchart" style="width:500px; height:300px;">
+				<h3>Stats go here!</h3>
+			</div>
+		</div>
+		<div id='mainRight'>
+			<div id='view'>
+				<div id='d3'></div>
+			</div>
+		</div>
 	</div>
 </div>
 <!-- endMain -->

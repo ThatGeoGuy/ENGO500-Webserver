@@ -1,0 +1,9 @@
+#mainLeft {
+	width: 30%;
+	float: left;
+}
+#mainRight {
+	width: 68%;
+	float: right;
+	padding-top: 60px;
+}

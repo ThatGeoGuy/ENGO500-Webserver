@@ -288,11 +288,12 @@ function shelf() {
 }
 
 function sections() {
-	this.sectionName = "Default Section name";
+	this.sectionName;
 	this.displayId;
 	this.displayColor;
 	this.pirURL;
 	this.pintURL;
+	this.obs = [];
 	return;
 }
 
