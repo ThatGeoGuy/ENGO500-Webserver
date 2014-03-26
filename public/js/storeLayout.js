@@ -293,7 +293,7 @@ function sections() {
 	this.displayColor;
 	this.pirURL;
 	this.pintURL;
-	this.obs = [];
+	this.filled;
 	return;
 }
 
