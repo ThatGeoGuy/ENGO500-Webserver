@@ -7,8 +7,9 @@ var newObs = {"Observations" : []};
 var checkN = 0;
 var traffic = [];
 
-var w = 808;
-var h = w*2/3;
+var w = 1000;
+var h = 510;
+
 var strokePadding = 1;
 var domainSize = 1;
 
@@ -48,8 +49,8 @@ var chartHeight;
 var chartWidth;
 var y;
 
-var width = 500,
-    height = 500;
+var width = 300,
+    height = 300;
 
 var tau = 2 * Math.PI; // http://tauday.com/tau-manifesto
 
@@ -57,8 +58,8 @@ var tau = 2 * Math.PI; // http://tauday.com/tau-manifesto
 // SVG path string for a given angle, we pass an object with an endAngle
 // property to the `arc` function, and it will return the corresponding string.
 var arc = d3.svg.arc()
-    .innerRadius(180)
-    .outerRadius(240)
+    .innerRadius(110)
+    .outerRadius(150)
     .startAngle(0);
 
 // Create the SVG container, and apply a transform such that the origin is the
@@ -82,6 +83,7 @@ var foreground = svg2.append("path")
     .attr("d", arc);
 
 $(document).ready(function () {
+
 	svg = d3.select('#d3').append("svg")
 		.attr("width", w)
 		.attr("height", h);
@@ -119,8 +121,6 @@ $(document).ready(function () {
 	/* initialize the chart without any data */
 	displayStackedChart("graph");
 
-
-
 	setInterval(function () {
 	var date = new Date();
 	var newData = {};
@@ -142,6 +142,7 @@ $(document).ready(function () {
 	}, 10000);
 
 	//}, 5*60000);
+
 /**
 * Create an empty shell of a chart that bars can be added to
 */
