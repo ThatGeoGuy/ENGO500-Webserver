@@ -13,37 +13,7 @@ var h = 510;
 var strokePadding = 1;
 var domainSize = 1;
 
-var cached = false; // will need to be array later
-var lastMod;
-
-var heatRamp = ["#FFFF00", "#FFDD00", "#FFBB00", "#FF9900",
-				"#FF7700", "#FF5500", "#FF3300", "#FF1100"];
-
-var format = d3.time.format("%Y-%m-%dT%H:%M:%S%Z");
-//var timeQuery = ?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('2014-03-19t12:19:25-0600','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('2014-03-19t12:19:26-0600','%Y-%m-%dt%H:%i:%s')
-
 var propertyNames = [];
-
-function createTimeQuery ( shelfN, sectionN ){
-	var baseURL = shelves[shelfN].sections[sectionN].pirURL;
-	var filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
-	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
-	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
-
-	var date = new Date();
-	var realMonth = date.getMonth() + 1;
-	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
-	var pastDate = new Date(date.getTime() - 5*60000);
-	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
-
-	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
-}
-
-function checktime (time) {
-	if (time < 10)
-		time = "0" + time;
-	return time;
-}
 
 var chartHeight;
 var chartWidth;
@@ -96,10 +66,6 @@ $(document).ready(function () {
 		drawExisting(shelves, scale);
 	}
 
-	// Make GET requests synchronous
-	$.ajaxSetup({
-		async: false
-	});
 	// Monitor datastreams for changes
 	// Photo interrupter!
 	var tids = setInterval( function() { getObs("stock") }, 5000);
@@ -293,10 +259,20 @@ function addData(chartId, data) {
 		return y(data[propertyOfDataToDisplay]);
 	}
 
-
-
-
 }); // End DocumentReady
+
+function doGet(shelfInd, sectionInd, URL, type) {
+	jQuery.get(URL, function ( data, textStatus, xhr ) {
+		console.log(xhr.status);
+		if(xhr.status < 400){
+			shelves[shelfInd].sections[sectionInd].obs = data;
+			checkObs(data, type, shelfInd, sectionInd);
+			if (type == "stock"){
+				updateStockLevel();
+			}
+		}
+	});
+}
 
 function getObs(obsType) {
 	
@@ -309,22 +285,9 @@ function getObs(obsType) {
 				var obsURL = shelves[i].sections[j].pintURL;
 			}
 			if( obsURL != null ){
-				/*console.log(i);
-				console.log(j);
-				console.log(obsType);*/
-				jQuery.get(obsURL, function ( data, textStatus, xhr ) {
-					console.log(xhr.status);
-					if(xhr.status < 400){
-						shelves[i].sections[j].obs = data;
-						checkObs(data, obsType, i, j);
-					}
-				});
+				doGet(i,j, obsURL, obsType);
 			}
 		}
-	}
-
-	if (obsType == "stock"){
-		updateStockLevel();
 	}
 }
 
@@ -496,7 +459,7 @@ function addHeat( shelfInd, shelves, scale ) {
 		.attr("height", function(d,i) {
 			return 495/shelves[shelfInd].sections.length - 5;
 		})
-		.attr("fill", heatRamp[4])
+		.attr("fill", "#FF9900")
 		.attr("stroke-width", strokePadding)
 		.attr("class", function (d,i) {
 			return "heat" + shelfInd;
@@ -513,7 +476,7 @@ function updateStockLevel() {
 	var	fullSections = 0;
 	for( var i = 0; i < shelves.length; i++ )	{
 		for( var j = 0; j < shelves[i].sections.length; j++){
-			if (shelves[i].sections[j].pintURL !== null){ 
+			if (shelves[i].sections[j].pintURL !== undefined ){ 
 				if( shelves[i].sections[j].filled == true){
 					fullSections = fullSections + 1;
 				}
@@ -523,55 +486,38 @@ function updateStockLevel() {
 	}
 	
 	foreground.transition()
-      .duration(750)
-      .call(arcTween, fullSections / allSections * tau);
+    	.duration(750)
+    	.call(arcTween, fullSections / allSections * tau);
+}
+
+function createTimeQuery ( shelfN, sectionN ){
+	var baseURL = shelves[shelfN].sections[sectionN].pirURL;
+	var filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
+	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
+
+	var date = new Date();
+	var realMonth = date.getMonth() + 1;
+	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
+	var pastDate = new Date(date.getTime() - 5*60000);
+	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
+
+	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
+}
+
+function checktime (time) {
+	if (time < 10)
+		time = "0" + time;
+	return time;
 }
 
 // Creates a tween on the specified transition's "d" attribute, transitioning
 // any selected arcs from their current angle to the specified new angle.
 function arcTween(transition, newAngle) {
-
-  // The function passed to attrTween is invoked for each selected element when
-  // the transition starts, and for each element returns the interpolator to use
-  // over the course of transition. This function is thus responsible for
-  // determining the starting angle of the transition (which is pulled from the
-  // element's bound datum, d.endAngle), and the ending angle (simply the
-  // newAngle argument to the enclosing function).
   transition.attrTween("d", function(d) {
-
-    // To interpolate between the two angles, we use the default d3.interpolate.
-    // (Internally, this maps to d3.interpolateNumber, since both of the
-    // arguments to d3.interpolate are numbers.) The returned function takes a
-    // single argument t and returns a number between the starting angle and the
-    // ending angle. When t = 0, it returns d.endAngle; when t = 1, it returns
-    // newAngle; and for 0 < t < 1 it returns an angle in-between.
     var interpolate = d3.interpolate(d.endAngle, newAngle);
-
-    // The return value of the attrTween is also a function: the function that
-    // we want to run for each tick of the transition. Because we used
-    // attrTween("d"), the return value of this last function will be set to the
-    // "d" attribute at every tick. (It's also possible to use transition.tween
-    // to run arbitrary code for every tick, say if you want to set multiple
-    // attributes from a single function.) The argument t ranges from 0, at the
-    // start of the transition, to 1, at the end.
     return function(t) {
-
-      // Calculate the current arc angle based on the transition time, t. Since
-      // the t for the transition and the t for the interpolate both range from
-      // 0 to 1, we can pass t directly to the interpolator.
-      //
-      // Note that the interpolated angle is written into the element's bound
-      // data object! This is important: it means that if the transition were
-      // interrupted, the data bound to the element would still be consistent
-      // with its appearance. Whenever we start a new arc transition, the
-      // correct starting angle can be inferred from the data.
       d.endAngle = interpolate(t);
-
-      // Lastly, compute the arc path given the updated data! In effect, this
-      // transition uses data-space interpolation: the data is interpolated
-      // (that is, the end angle) rather than the path string itself.
-      // Interpolating the angles in polar coordinates, rather than the raw path
-      // string, produces valid intermediate arcs during the transition.
       return arc(d);
     };
   });

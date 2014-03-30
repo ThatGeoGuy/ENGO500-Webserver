@@ -28,8 +28,8 @@ var $deleteButton;
 var $saveButton;
 var $deleteAll;
 
-var w = 808;
-var h = w*2/3;
+var w = 1000;
+var h = 510;
 var strokePadding = 1;
 var domainSize = 1;
 
