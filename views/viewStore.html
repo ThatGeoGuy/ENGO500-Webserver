@@ -1,29 +1,41 @@
 {% extends "base.html" %}
 {% block CSS %}
 <link rel='stylesheet' href='http://code.jquery.com/ui/1.10.4/themes/redmond/jquery-ui.css'>
+<link rel='stylesheet' href='/css/viewStore.css'>
 {% endblock %}
 
 {% block CONTENT %}
 
 {% include "navigationBar.html" %}
 
-<div id='wrapper' class='container'> 
-	<div id='content'>
-
-					<div id='view'>
-						<div id='d3'></div>
+<div class='container'>
+<div class="well">
+	<div class='row'>
+		<div class='col-md-4'>
+			<div class="panel panel-default">
+	  			<div class="panel-body">
+					<h3>Store Traffic</h3>
+					<div id='traffic' class='aBarchar'></div>
+					<div class='row'>
+						<div class='col-md-12'>
+							<h3>Stock Levels</h3>
+							<div id='stock'></div>
+						</div>
 					</div>
-
-				<div class='accordion'> <!--rename to accordionTemplate -->
-					<h3 class='accordion-title'></h3>
-					<div class='accordion-content'></div>
 				</div>
+			</div>
+		</div>
+		<div class='col-md-8'>
+			<div class="panel panel-default">
+	  			<div class="panel-body">
+					<h3>My Store</h3>
+					<div id='store'></div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
-<!-- endMain -->
-<!-- endContainer -->
-<!-- endContent -->
-<!-- endWrapper -->
+</div>
 
 {% include "footer.html" %}
 

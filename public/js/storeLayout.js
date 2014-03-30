@@ -28,8 +28,8 @@ var $deleteButton;
 var $saveButton;
 var $deleteAll;
 
-var w = 808;
-var h = w*2/3;
+var w = 800;
+var h = 510;
 var strokePadding = 1;
 var domainSize = 1;
 
@@ -53,21 +53,28 @@ $(document).ready(function () {
 		.attr("height", h);
 
 	// Load previous config
-	if( localStorage.getItem("myShelfConfig") != null ){
-		var shelfJSON = localStorage.getItem("myShelfConfig");
-		shelves = jQuery.parseJSON(shelfJSON);
+	$.ajax({
+		type:			"get",
+		url:			"/get-user-data",
+		contentType:	"application/json",
 
-		// Display existing shelves
-		drawExisting(shelves, scale);
-		for( var i = 0; i < shelves.length; i++){
-			makeAccordion( shelves, i, 0, "shelf");
-			for( var j = 0; j < shelves[i].sections.length; j++){
-				makeAccordion( shelves, i, j + 1, "section");
+		success: function(data, textStatus, jqXHR){
+			if( data.length != undefined ){
+				shelves = data;
+			} else {
+				shelves = [];
 			}
+			drawExisting(shelves, scale);
+			for( var i = 0; i < shelves.length; i++){
+				makeAccordion( shelves, i, 0, "shelf");
+				for( var j = 0; j < shelves[i].sections.length; j++){
+					makeAccordion( shelves, i, j + 1, "section");
+				}
+			}
+			manageSectionButton();
+			currentShelfNumber = shelves.length;
 		}
-		manageSectionButton();
-		currentShelfNumber = shelves.length;
-	}
+	});
 
 	// Add Shelf Button
 	$addShelf.on("click", function (e) {
@@ -169,17 +176,29 @@ $(document).ready(function () {
 	$saveButton.on("click", function(e) {
 		e.preventDefault();
 
-		var shelveJSON = JSON.stringify(shelves);
-		console.log(shelveJSON);
-		localStorage.setItem("myShelfConfig", shelveJSON);
+		$.ajax({
+			type:			"post",
+			url:			"/set-user-data",
+			contentType:	"application/json",
+			data:			JSON.stringify( shelves )
+		});
 	});
 
 	// Delete all
 	$deleteAll.on("click", function(e) {
 		e.preventDefault();
 
-		localStorage.removeItem("myShelfConfig");
-		window.location.reload(true);
+		$.ajax({
+			type:			"post",
+			url:			"/set-user-data",
+			contentType:	"application/json",
+			data:			[],
+
+			success: function() {
+				window.location.reload(true);
+			}
+		});
+
 	});
 
 });
@@ -288,11 +307,12 @@ function shelf() {
 }
 
 function sections() {
-	this.sectionName = "Default Section name";
+	this.sectionName;
 	this.displayId;
 	this.displayColor;
 	this.pirURL;
 	this.pintURL;
+	this.filled;
 	return;
 }
 
