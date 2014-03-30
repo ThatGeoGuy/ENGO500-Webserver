@@ -7,7 +7,7 @@ var newObs = {"Observations" : []};
 var checkN = 0;
 var traffic = [];
 
-var w = 1000;
+var w = 800;
 var h = 510;
 
 var strokePadding = 1;
@@ -58,13 +58,20 @@ $(document).ready(function () {
 		.attr("width", w)
 		.attr("height", h);
 
-	if( localStorage.getItem("myShelfConfig") != null ){
-		var shelfJSON = localStorage.getItem("myShelfConfig");
-		shelves = jQuery.parseJSON(shelfJSON);
+		$.ajax({
+			type:			"get",
+			url:			"/get-user-data",
+			contentType:	"application/json",
 
-		// Display existing shelves
-		drawExisting(shelves, scale);
-	}
+			success: function(data, textStatus, jqXHR){
+			if( data.length != undefined ){
+				shelves = data;
+			} else {
+				shelves = [];
+			}
+			drawExisting(shelves, scale);
+			}
+		});
 
 	// Monitor datastreams for changes
 	// Photo interrupter!
