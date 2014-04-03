@@ -15,6 +15,26 @@ var storeSVG = d3.select('#store').append("svg")
 var scale,
 	domainSize = 1,
 	shelves = [];
+	
+// the property names on the data objects that we'll get data from
+var propertyNames = [];
+
+// Load shelves data
+$.ajax({
+	type:			"get",
+	url:			"/get-user-data",
+	contentType:	"application/json",
+
+	success: function(data, textStatus, jqXHR){
+	if( data.length != undefined ){
+		shelves = data;
+	} else {
+		shelves = [];
+	}
+	drawExisting(shelves, scale);
+	propertyNames = getActiveSections(shelves);
+	}
+});
 
 var oldObs = {"Observations" : []},
 	newObs = {"Observations" : []};
@@ -30,9 +50,6 @@ var ceiling = 100;
 // Y scale will fit values from 0-10 within pixels 0 - height
 var y = d3.scale.linear().domain([0, ceiling]).range([0, trafficH]);
 
-// the property names on the data objects that we'll get data from
-var propertyNames = [];
-propertyNames = getActiveSections(shelves);
 // initialize the chart without any data
 displayStackedChart("traffic");
 
@@ -71,21 +88,7 @@ var foreground = stockSVG.append("path")
 * Load & Monitor Data ---------------------------------------------------------
 */
 
-// Load shelves data
-$.ajax({
-	type:			"get",
-	url:			"/get-user-data",
-	contentType:	"application/json",
 
-	success: function(data, textStatus, jqXHR){
-	if( data.length != undefined ){
-		shelves = data;
-	} else {
-		shelves = [];
-	}
-	drawExisting(shelves, scale);
-	}
-});
 
 // Monitor datastreams for changes
 // Photo interrupter!
@@ -99,20 +102,14 @@ setInterval(function () {
 	// Give each epoch an id based on the current time
 	newData["id"] = "t" + date.getHours() + checktime(date.getMinutes()) + checktime(date.getSeconds());
 	// Check all the active datastreams for observations that fall within the new epoch
-	propertyNames.forEach(function (entry) {
+	propertyNames.forEach(function (entry, index, array) {
 		// Get the shelf indices from shelfIndeces: s#s#
 		var shelfIndices = entry.split("s");
 		var url = createTimeQuery( shelfIndices[1], shelfIndices[2] );
-		jQuery.get(url, function ( data, textStatus, xhr ) {
-			console.log(xhr.status);
-			if(xhr.status < 400){
-				newData[entry] = data.Observations.length;
-			} else {
-				newData[entry] = 0;
-			}
-		});
+		doTrafficGet(entry, url, index, array, newData);
+		
+		
 	});
-	addData("traffic", newData);
 }, 10000);
 //}, 5*60000);
 
@@ -121,6 +118,21 @@ setInterval(function () {
 *
 * Load & Monitor Data ---------------------------------------------------------
 */
+
+function doTrafficGet(sectionIndex, url, arrayInd, propertyNamesArray, newData){
+	jQuery.get(url, function ( data, textStatus, xhr ) {
+			console.log(xhr.status);
+			if(xhr.status < 400){
+				newData[sectionIndex] = data.Observations.length;
+			} else {
+				newData[sectionIndex] = 0;
+			}
+			if(arrayInd === propertyNamesArray.length - 1){
+					addData("traffic", newData);
+			}
+		});
+	
+}
 
 // Set up the URL to get the observations
 function getObs(obsType) {
@@ -244,6 +256,30 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("class", "section shelf" + shelfIndex)
 		.attr("id", function (d,i) {
 			return "shelf" + shelfIndex +"sect" + i;
+		})
+		.on("mouseover", function (d) {
+			div.transition()
+				.duration(200)
+				.style("opacity", .9);
+			if( d.displayID == undefined ){
+				div.html("Configure this section</br>on the 'Create Layout' page!")
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");
+			} else {
+			div.html(d.displayID)
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY - 28) + "px");
+			}
+		})
+		.on("mouseout", function(d) {
+			div.transition()
+				.duration(500)
+				.style("opacity", 0)
+		})
+		.on("mousemove", function() {
+			div
+				.style("left", (d3.event.pageX) + "px")     
+				.style("top", (d3.event.pageY - 28) + "px");
 		})
 		.attr("opacity", 0)
 		.transition()
@@ -381,7 +417,7 @@ function displayStackedChart(chartId) {
 	.append("g").attr("class","barChart").attr("transform", "translate(0, " + trafficH + ")"); 
 }
 
-function getActiveSections( shelves ) {
+function getActiveSections( ) {
 	var propertyNames = [];
 	for ( var i = 0; i < shelves.length; i++){
 			for( var j=0; j < shelves.length; j++){
@@ -525,5 +561,12 @@ function arcTween(transition, newAngle) {
     };
   });
 }
+
+// Tooltip
+
+var div = d3.select("body").append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0);
+
 
 }); // End Document Ready
