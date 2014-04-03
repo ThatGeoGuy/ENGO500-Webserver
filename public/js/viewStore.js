@@ -96,9 +96,10 @@ setInterval( function() { getObs("stock") }, 5000);
 // PIR Motion sensor!
 setInterval( function() { getObs("motion") }, 3000);
 // Traffic parser!
+var newData = {};
 setInterval(function () {
 	var date = new Date();
-	var newData = {};
+	newData = {};
 	// Give each epoch an id based on the current time
 	newData["id"] = "t" + date.getHours() + checktime(date.getMinutes()) + checktime(date.getSeconds());
 	// Check all the active datastreams for observations that fall within the new epoch
@@ -123,7 +124,11 @@ function doTrafficGet(sectionIndex, url, arrayInd, propertyNamesArray, newData){
 	jQuery.get(url, function ( data, textStatus, xhr ) {
 			console.log(xhr.status);
 			if(xhr.status < 400){
-				newData[sectionIndex] = data.Observations.length;
+				if('Observations' in data){
+					newData[sectionIndex] = data.Observations.length;
+				} else {
+					newData[sectionIndex] = 1;
+				}
 			} else {
 				newData[sectionIndex] = 0;
 			}
