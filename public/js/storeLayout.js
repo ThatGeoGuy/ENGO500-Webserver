@@ -515,7 +515,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.duration(500);
 }
 
-function drawExisting(shelves, scale){
+function drawExisting(shelves){
 	if( isOdd(shelves.length) ){
 		domainSize = shelves.length / 2 + 1;
 	} else {
