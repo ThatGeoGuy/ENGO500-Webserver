@@ -245,6 +245,30 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("id", function (d,i) {
 			return "shelf" + shelfIndex +"sect" + i;
 		})
+		.on("mouseover", function (d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            if( d.displayID == undefined ){
+            	div.html("Configure this section</br>on the 'Create Layout' page!")
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");
+			} else {
+			div.html(d.displayID)
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY - 28) + "px");
+			}
+		})
+		.on("mouseout", function(d) {
+			div.transition()
+				.duration(500)
+				.style("opacity", 0)
+		})
+		.on("mousemove", function() {
+			div
+				.style("left", (d3.event.pageX) + "px")     
+				.style("top", (d3.event.pageY - 28) + "px");
+		})
 		.attr("opacity", 0)
 		.transition()
 		.delay(delay)
@@ -525,5 +549,12 @@ function arcTween(transition, newAngle) {
     };
   });
 }
+
+// Tooltip
+
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
 
 }); // End Document Ready
