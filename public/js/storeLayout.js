@@ -351,14 +351,13 @@ function generateAccordion( number, accordionType ) {
 		return $accordionWithEvents;
 }
 
-function generateAccordionContent( shelfIndex, accordionType, shelvesArray ) {
+function generateAccordionContent( shelfIndex, accordionType) {
 		var $accordionContent = $(document.createElement("ul"));
 		$accordionContent.addClass("attributeUl");
 		if ( accordionType == "shelf" ) {
 			$accordionContent.append($("<li>").append("Notes: <span class=\"input notes\"></span>"));
 			$accordionContent.append($("<li>").append("RasPi UUID: <span class=\"input uuid\"></span>"));
 		}else {
-			var sectionIndex = shelvesArray[shelfIndex].sections.length - 1;
 			$accordionContent.append($("<li>").append("ID: <span class=\"input id\"></span>"));
 			$accordionContent.append($("<li>").append("Motion sensor: <span class=\"input motion\"></span>"));
 			$accordionContent.append($("<li>").append("Stock sensor: <span class=\"input stock\"></span>"));
