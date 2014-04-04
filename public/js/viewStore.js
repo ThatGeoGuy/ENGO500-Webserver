@@ -76,12 +76,12 @@ var stockSVG = d3.select("#stock").append("svg")
 
 var background = stockSVG.append("path")
     .datum({endAngle: tau})
-    .style("fill", "#ddd")
+    .style("fill", "#991C3D")
     .attr("d", arc);
 
 var foreground = stockSVG.append("path")
     .datum({endAngle: tau})
-    .style("fill", "orange")
+    .style("fill", "#2E6E9E")
     .attr("d", arc);
 
 /**
@@ -98,6 +98,9 @@ setInterval( function() { getObs("motion") }, 3000);
 // Traffic parser!
 var newData = {};
 setInterval(function () {
+	if( $.isEmptyObject( newData) == false ){
+		addData("traffic", newData);
+	}
 	var date = new Date();
 	newData = {};
 	// Give each epoch an id based on the current time
@@ -107,9 +110,8 @@ setInterval(function () {
 		// Get the shelf indices from shelfIndeces: s#s#
 		var shelfIndices = entry.split("s");
 		var url = createTimeQuery( shelfIndices[1], shelfIndices[2] );
-		doTrafficGet(entry, url, index, array, newData);
-		
-		
+		doTrafficGet(entry, url, newData);
+			
 	});
 }, 10000);
 //}, 5*60000);
@@ -120,9 +122,8 @@ setInterval(function () {
 * Load & Monitor Data ---------------------------------------------------------
 */
 
-function doTrafficGet(sectionIndex, url, arrayInd, propertyNamesArray, newData){
+function doTrafficGet(sectionIndex, url, newData){
 	jQuery.get(url, function ( data, textStatus, xhr ) {
-			console.log(xhr.status);
 			if(xhr.status < 400){
 				if('Observations' in data){
 					newData[sectionIndex] = data.Observations.length;
@@ -131,9 +132,6 @@ function doTrafficGet(sectionIndex, url, arrayInd, propertyNamesArray, newData){
 				}
 			} else {
 				newData[sectionIndex] = 0;
-			}
-			if(arrayInd === propertyNamesArray.length - 1){
-					addData("traffic", newData);
 			}
 		});
 	
@@ -162,7 +160,6 @@ function getObs(obsType) {
 // Do the get Request to get observations
 function doGet(shelfInd, sectionInd, URL, type) {
 	jQuery.get(URL, function ( data, textStatus, xhr ) {
-		console.log(xhr.status);
 		if(xhr.status < 400){
 			shelves[shelfInd].sections[sectionInd].obs = data;
 			checkObs(data, type, shelfInd, sectionInd);
@@ -181,7 +178,6 @@ function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 			displayStock(shelfInd, sectionInd, shelves, 1);
 			shelves[shelfInd].sections[sectionInd].filled = false;
 		} else if ( obsType == "motion" ){
-			console.log("shelf: " + shelfInd + " section: " + sectionInd);
 			displayMotion(shelfInd, sectionInd, shelves);
 		}
 	} else {
@@ -202,7 +198,7 @@ function createTimeQuery ( shelfN, sectionN ){
 	var date = new Date();
 	var realMonth = date.getMonth() + 1;
 	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
-	var pastDate = new Date(date.getTime() - 5*60000);
+	var pastDate = new Date(date.getTime() - 1*60000);
 	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
 
 	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
@@ -395,7 +391,6 @@ function displayStock(shelfInd, sectionInd, shelves, state){
 
 // Refresh the heat map of an area if the motion sensor detects motion
 function displayMotion(shelfInd, sectionInd, shelves){
-	console.log("About to display motion");
 	var selector = "#heats" + shelfInd + "s" + sectionInd;
 
 	storeSVG.selectAll(selector)
@@ -523,12 +518,24 @@ function barY(data, propertyOfDataToDisplay) {
 		baseline = baseline + data[propertyNames[j]];
 	}
 	// make the y value negative 'height' instead of 0 due to origin moved to bottom-left
-	return -y(baseline + data[propertyOfDataToDisplay]);
+	var returnValue;
+	if(data[propertyOfDataToDisplay] == undefined){
+		returnValue = -1;
+	} else {
+		returnValue = -y(baseline + data[propertyOfDataToDisplay]);
+	}
+	return returnValue;
 }
 
 // Function to calculate height of a bar
 function barHeight(data, propertyOfDataToDisplay) {
-	return y(data[propertyOfDataToDisplay]);
+	var returnValue;
+	if(data[propertyOfDataToDisplay] == undefined){
+		returnValue = 1;
+	} else {
+		returnValue = y(data[propertyOfDataToDisplay]);
+	}
+	return returnValue;
 }
 
 /*
