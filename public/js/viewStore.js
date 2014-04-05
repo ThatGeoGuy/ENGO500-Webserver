@@ -114,7 +114,7 @@ setInterval(function () {
 	propertyNames.forEach(function (entry, index, array) {
 		// Get the shelf indices from shelfIndeces: s#s#
 		var shelfIndices = entry.split("s");
-		var url = createTimeQuery( shelfIndices[1], shelfIndices[2] );
+		var url = createTimeQuery( shelfIndices[1], shelfIndices[2], "motion", "active", 1 );
 		doTrafficGet(entry, url, newData);
 			
 	});
@@ -148,16 +148,22 @@ function getObs(obsType) {
 	for( var i = 0; i < shelves.length; i++ )	{
 		for( var j = 0; j < shelves[i].sections.length; j++){
 			// Set the url depending on what type of observation it is
-			if (obsType == "motion"){ // PIR Motion sensor
-				var obsURL = shelves[i].sections[j].pirURL;
-			} else if (obsType == "stock"){ // Photo interrupter
-				var obsURL = shelves[i].sections[j].pintURL;
+			var obsURL;
+			if (obsType == "motion" && shelves[i].sections[j].pirURL != null){ // PIR Motion sensor
+				obsURL = createTimeQuery( i, j, "motion", "all", 1);
+				doGet(i,j, obsURL, obsType);
+			} else if (obsType == "stock" && shelves[i].sections[j].pintURL !=null){ // Photo interrupter
+				//var obsURL = shelves[i].sections[j].pintURL;
+				obsURL = createTimeQuery( i, j, "stock", "all", 1);
+				doGet(i,j, obsURL, obsType);
 			}
 
+			/*
 			if( obsURL != null ){
 				// Pass the variables of the get to a function so that indices don't get borked
 				doGet(i,j, obsURL, obsType);
 			}
+			*/
 		}
 	}
 }
@@ -178,7 +184,13 @@ function doGet(shelfInd, sectionInd, URL, type) {
 // Check what the value of the latest obs is and call the appropriate function to visualize it
 function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	newObs = obsJSON;
-	if( newObs.Observations[newObs.Observations.length - 1].ResultValue == 1 ){
+	var resultValue = 0;
+	if('Observations' in newObs){
+		resultValue = newObs.Observations[newObs.Observations.length - 1].ResultValue
+	} else {
+		resultValue = newObs.ResultValue;
+	}
+	if( resultValue == 1 ){
 		if( obsType == "stock"){
 			displayStock(shelfInd, sectionInd, shelves, 1);
 			shelves[shelfInd].sections[sectionInd].filled = false;
@@ -194,16 +206,27 @@ function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	oldObs = newObs;
 }
 
-function createTimeQuery ( shelfN, sectionN ){
-	var baseURL = shelves[shelfN].sections[sectionN].pirURL;
-	var filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+function createTimeQuery ( shelfN, sectionN, obsType, obsValues, nMinutes ){
+	var baseURL;
+	if(obsType == "motion"){
+		baseURL = shelves[shelfN].sections[sectionN].pirURL;
+	} else {
+		baseURL = shelves[shelfN].sections[sectionN].pintURL;
+	}
+
+	var filter1;
+	if(obsValues == "all"){
+		filter1 = "?$filter= Time ge STR_TO_DATE('";
+	} else {
+		filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+	}
 	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
 	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
 
 	var date = new Date();
 	var realMonth = date.getMonth() + 1;
 	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
-	var pastDate = new Date(date.getTime() - 1*60000);
+	var pastDate = new Date(date.getTime() - nMinutes*60000);
 	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
 
 	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
