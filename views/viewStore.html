@@ -26,11 +26,36 @@
 			</div>
 		</div>
 		<div class='col-md-8'>
-			<div class="panel panel-default">
-	  			<div class="panel-body">
-					<h3>My Store</h3>
-					<div id='store'></div>
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#realtime" data-toggle="tab"><span class="glyphicon glyphicon-eye-open"></span> Real-Time</a></li>
+				<li><a href="#history" data-toggle="tab"><span class="glyphicon glyphicon-time"></span>  History</a></li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+
+				<!-- Real-Time -->
+				<div class="tab-pane active fade in" id="realtime">
+					<div class="panel panel-default">
+			  			<div class="panel-body">
+							<h3>My Store</h3>
+							<div id='storeReal'></div>
+					
+						</div>
+					</div>
 				</div>
+
+				<!-- History -->
+				<div class="tab-pane fade in" id="history">
+					<div class="panel panel-default">
+			  			<div class="panel-body">
+							<h3>My Store</h3>
+							<div id='storeHist'></div>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>

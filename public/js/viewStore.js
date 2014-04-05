@@ -7,7 +7,11 @@ var storeW = 800,
 	storeH = 510,
 	strokePadding = 1;
 
-var storeSVG = d3.select('#store').append("svg")
+var storeRealSVG = d3.select('#storeReal').append("svg")
+	.attr("width", storeW)
+	.attr("height", storeH);
+
+var storeHistSVG = d3.select('#storeHist').append("svg")
 	.attr("width", storeW)
 	.attr("height", storeH);
 
@@ -31,7 +35,8 @@ $.ajax({
 	} else {
 		shelves = [];
 	}
-	drawExisting(shelves, scale);
+	drawExisting(shelves, scale, storeRealSVG);
+	drawExisting(shelves, scale, storeHistSVG);
 	propertyNames = getActiveSections(shelves);
 	}
 });
@@ -218,7 +223,7 @@ function isOdd(num) {
 	return (num % 2) == 1;
 }
 
-function drawSections(shelfIndex, shelves, scale, delay){
+function drawSections(shelfIndex, shelves, scale, delay, svg){
 
 	var selector = ".shelf" + shelfIndex;
 
@@ -226,7 +231,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.domain([0, shelves[shelfIndex].sections.length])
 		.range([0,495]);
 
-	storeSVG.transition().selectAll(selector)
+	svg.transition().selectAll(selector)
 		.duration(500)
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
@@ -236,7 +241,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		});
 
 	// Add new sections
-	storeSVG.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
+	svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
 		.attr("x", function () {
 			if( isOdd(shelfIndex) ){
 				return scale(shelfIndex) + 30;
@@ -258,6 +263,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("id", function (d,i) {
 			return "shelf" + shelfIndex +"sect" + i;
 		})
+		// Display Tooltip
 		.on("mouseover", function (d) {
 			div.transition()
 				.duration(200)
@@ -282,6 +288,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 				.style("left", (d3.event.pageX) + "px")     
 				.style("top", (d3.event.pageY - 28) + "px");
 		})
+		// Fade in
 		.attr("opacity", 0)
 		.transition()
 		.delay(delay)
@@ -289,7 +296,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.duration(500);
 }
 
-function drawExisting(shelves, scale){
+function drawExisting(shelves, scale, svg){
 	if( isOdd(shelves.length) ){
 		domainSize = shelves.length / 2 + 1;
 	} else {
@@ -300,7 +307,7 @@ function drawExisting(shelves, scale){
 		.domain([0,domainSize])
 		.rangeRound([0,storeW/2]);
 
-	storeSVG.selectAll(".shelf").data(shelves).enter().append("rect")
+	svg.selectAll(".shelf").data(shelves).enter().append("rect")
 		.attr("x", storeW+100) // initialize out of frame, then slide in
 		.attr("y", strokePadding)
 		.attr("rx", 5)
@@ -325,12 +332,12 @@ function drawExisting(shelves, scale){
 		});
 
 	for(var index = 0; index < shelves.length; index++){
-		drawSections(index, shelves, scale, 500);
-		addHeat(index, shelves, scale);
+		drawSections(index, shelves, scale, 500, svg);
+		addHeat(index, shelves, scale, svg);
 	}
 }
 
-function addHeat( shelfInd, shelves, scale ) {
+function addHeat( shelfInd, shelves, scale, svg ) {
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfInd].sections.length])
 		.range([0,495]);
@@ -338,7 +345,7 @@ function addHeat( shelfInd, shelves, scale ) {
 	var heatWidth = (scale(1) - scale(0)) * 2 - 2 * 50;
 	var heatHeight = 495/shelves[shelfInd].sections.length - 5;
 
-	storeSVG.selectAll(".heat" + shelfInd).data(shelves[shelfInd].sections).enter().append("rect")
+	svg.selectAll(".heat" + shelfInd).data(shelves[shelfInd].sections).enter().append("rect")
 		.attr("x", function () {
 			if( isOdd(shelfInd) ){
 				return scale(shelfInd) + 75;
@@ -375,13 +382,13 @@ function displayStock(shelfInd, sectionInd, shelves, state){
 	var selector = "#shelf" + shelfInd + "sect" + sectionInd;
 	
 	if( state == 1){
-		storeSVG.transition().selectAll(selector)
+		storeRealSVG.transition().selectAll(selector)
 			.transition()
 			.attr("fill", "#991C3D")
 			.attr("value", 1)
 			.duration(500);
 	} else {
-		storeSVG.transition().selectAll(selector)
+		storeRealSVG.transition().selectAll(selector)
 			.transition()
 			.attr("fill", "#2E6E9E")
 			.attr("value", 0)
@@ -393,11 +400,11 @@ function displayStock(shelfInd, sectionInd, shelves, state){
 function displayMotion(shelfInd, sectionInd, shelves){
 	var selector = "#heats" + shelfInd + "s" + sectionInd;
 
-	storeSVG.selectAll(selector)
+	storeRealSVG.selectAll(selector)
 		.transition().duration(300)
 		.attr("opacity", 0.5);
 
-	storeSVG.selectAll(selector)
+	storeRealSVG.selectAll(selector)
 		.transition().delay(300).duration(12000)
 		.attr("opacity", 0);
 }
