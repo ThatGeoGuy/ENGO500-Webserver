@@ -15,25 +15,14 @@ var storeHistSVG = d3.select('#storeHist').append("svg")
 	.attr("width", storeW)
 	.attr("height", storeH);
 
-
-$("#slider").slider({
-	value: 1,
-	min: 1,
-	max: 24,
-	step: 1,
-	animate: true,
-	slide: function( event, ui ) {
-		$( "#amount" ).text( ui.value + " h" );
-	}
-});
-
 // Create a dymanic scale which is updated when the shelves data is drawn
 var scale,
 	domainSize = 1,
 	shelves = [];
 	
 // the property names on the data objects that we'll get data from
-var propertyNames = [];
+var trafficPropertyNames = [];
+var stockPropertyNames = [];
 
 // Load shelves data
 $.ajax({
@@ -49,7 +38,38 @@ $.ajax({
 	}
 	drawExisting(shelves, scale, storeRealSVG);
 	drawExisting(shelves, scale, storeHistSVG);
-	propertyNames = getActiveSections(shelves);
+	trafficPropertyNames = getActiveSections( "motion" );
+	stockPropertyNames = getActiveSections( "stock" );
+	}
+});
+
+// Add slider for historic observations
+var heatRamp = ["#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
+var heatBuckets = [ 0, 25, 50, 75, 100, 125, 150, 175];
+
+$("#slider").slider({
+	value: 1,
+	min: 1,
+	max: 24,
+	step: 1,
+	animate: true,
+	slide: function( event, ui ) {
+		$( "#amount" ).text( ui.value + " h" );
+	},
+	stop: function( event, ui ){
+		trafficPropertyNames.forEach( function (entry) {
+			var shelfIndices = entry.split("s");
+			var url = createHistQuery( shelfIndices[1], shelfIndices[2], "motion", ui.value );
+			console.log("For motion in the past " + ui.value + " hrs");
+			doHistGet(shelfIndices, url, "motion");
+
+		});
+		stockPropertyNames.forEach( function (entry) {
+			var shelfIndices = entry.split("s");
+			var url = createHistQuery( shelfIndices[1], shelfIndices[2], "stock", ui.value );
+			console.log("For stock in the past " + ui.value + " hrs");
+			doHistGet(shelfIndices, url, "stock");
+		});
 	}
 });
 
@@ -121,7 +141,7 @@ setInterval(function () {
 	// Give each epoch an id based on the current time
 	newData["id"] = "t" + date.getHours() + checktime(date.getMinutes()) + checktime(date.getSeconds());
 	// Check all the active datastreams for observations that fall within the new epoch
-	propertyNames.forEach(function (entry, index, array) {
+	trafficPropertyNames.forEach(function (entry, index, array) {
 		// Get the shelf indices from shelfIndeces: s#s#
 		var shelfIndices = entry.split("s");
 		var url = createTimeQuery( shelfIndices[1], shelfIndices[2], "motion", "active", 1 );
@@ -149,7 +169,35 @@ function doTrafficGet(sectionIndex, url, newData){
 				newData[sectionIndex] = 0;
 			}
 		});
-	
+}
+
+function doHistGet(sectionIndex, getURL, type){
+	$.ajax({
+		url: getURL,
+		type: 'get',
+		success: function ( data ) {
+			var nObs;
+			if('Observations' in data){
+				nObs = data.Observations.length;
+			} else {
+				nObs = 1;
+			}
+			console.log("n Obs: " + nObs);
+			displayHistTraffic(sectionIndex, nObs);
+		},
+		error: function( req, textStatus, errorThrown ){
+			var nObs = 0;
+			console.log("n Obs: " + nObs);
+		}
+	});
+}
+
+function displayHistTraffic( indices, n ){
+	var color = heatRamp[Math.floor(n / 25)];
+	storeHistSVG.select( "#heats" + indices[1] + "s" + indices[2])
+		.transition().duration(500)
+		.attr("opacity", 0.5)
+		.attr("fill", color);
 }
 
 // Set up the URL to get the observations
@@ -478,13 +526,19 @@ function displayStackedChart(chartId) {
 	.append("g").attr("class","barChart").attr("transform", "translate(0, " + trafficH + ")"); 
 }
 
-function getActiveSections( ) {
+function getActiveSections( obsType ) {
 	var propertyNames = [];
 	for ( var i = 0; i < shelves.length; i++){
-			for( var j=0; j < shelves.length; j++){
+			for( var j=0; j < shelves[i].sections.length; j++){
 				if( shelves[i].sections[j] !== undefined ){
-					if( shelves[i].sections[j].pirURL != null && shelves[i].sections[j].pirURL != ""){
-						propertyNames.push("s" + i + "s" + j);
+					if( obsType == "motion"){
+						if( shelves[i].sections[j].pirURL != null && shelves[i].sections[j].pirURL != ""){
+							propertyNames.push("s" + i + "s" + j);
+						}
+					} else {
+						if( shelves[i].sections[j].pintURL != null && shelves[i].sections[j].pintURL != ""){
+							propertyNames.push("s" + i + "s" + j);
+						}
 					}
 				}
 			}
@@ -503,15 +557,15 @@ function addData(chartId, data) {
 			.attr("id", chartId + "_" + data.id);
 
 	// now add each data point to the stack of this bar
-	for(index in propertyNames) {
+	for(index in trafficPropertyNames) {
 		barGroup.append("rect")
-			.attr("class", propertyNames[index])
+			.attr("class", trafficPropertyNames[index])
 			.attr("width", (barDimensions.barWidth-1)) 
 			.attr("x", function () { return (barDimensions.numBars-1) * barDimensions.barWidth;})
-			.attr("y", barY(data, propertyNames[index])) 
-			.attr("height", barHeight(data, propertyNames[index]))
+			.attr("y", barY(data, trafficPropertyNames[index])) 
+			.attr("height", barHeight(data, trafficPropertyNames[index]))
 			.attr("fill", "#555555")
-			.attr("value", data[propertyNames[index]] );
+			.attr("value", data[trafficPropertyNames[index]] );
 	}
 }
 
@@ -576,7 +630,7 @@ function barY(data, propertyOfDataToDisplay) {
 	// Determing the y coordinate to stack the newest bar onto
 	var baseline = 0;
 	for(var j=0; j < index; j++) {
-		baseline = baseline + data[propertyNames[j]];
+		baseline = baseline + data[trafficPropertyNames[j]];
 	}
 	// make the y value negative 'height' instead of 0 due to origin moved to bottom-left
 	var returnValue;
