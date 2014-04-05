@@ -26,3 +26,16 @@ div.tooltip {
   border-radius: 8px;
   pointer-events: none;
 }
+
+#slider {
+  margin-top: -30px;
+  width: 200px;
+  float: right;
+}
+
+#amount {
+  margin-top: -34px;
+  margin-right: 210px;
+  width: 120px;
+  float: right;
+}

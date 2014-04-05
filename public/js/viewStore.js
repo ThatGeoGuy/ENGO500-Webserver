@@ -7,7 +7,11 @@ var storeW = 800,
 	storeH = 510,
 	strokePadding = 1;
 
-var storeSVG = d3.select('#store').append("svg")
+var storeRealSVG = d3.select('#storeReal').append("svg")
+	.attr("width", storeW)
+	.attr("height", storeH);
+
+var storeHistSVG = d3.select('#storeHist').append("svg")
 	.attr("width", storeW)
 	.attr("height", storeH);
 
@@ -17,7 +21,8 @@ var scale,
 	shelves = [];
 	
 // the property names on the data objects that we'll get data from
-var propertyNames = [];
+var trafficPropertyNames = [];
+var stockPropertyNames = [];
 
 // Load shelves data
 $.ajax({
@@ -31,8 +36,38 @@ $.ajax({
 	} else {
 		shelves = [];
 	}
-	drawExisting(shelves, scale);
-	propertyNames = getActiveSections(shelves);
+	drawExisting(shelves, scale, storeRealSVG, "real");
+	drawExisting(shelves, scale, storeHistSVG, "hist");
+	trafficPropertyNames = getActiveSections( "motion" );
+	stockPropertyNames = getActiveSections( "stock" );
+	}
+});
+
+// Add slider for historic observations
+var heatRamp = ["#FFFFFF", "#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
+
+$("#slider").slider({
+	value: 0,
+	min: 0,
+	max: 24,
+	step: 1,
+	animate: true,
+	slide: function( event, ui ) {
+		$( "#amount" ).text( "Show past: " + ui.value + " h" );
+	},
+	stop: function( event, ui ){
+		trafficPropertyNames.forEach( function (entry) {
+			var shelfIndices = entry.split("s");
+			var url = createHistQuery( shelfIndices[1], shelfIndices[2], "motion", ui.value );
+			console.log("For motion in the past " + ui.value + " hrs");
+			doHistGet(shelfIndices, url, "motion");
+		});
+		stockPropertyNames.forEach( function (entry) {
+			var shelfIndices = entry.split("s");
+			var url = createHistQuery( shelfIndices[1], shelfIndices[2], "stock", ui.value );
+			console.log("For stock in the past " + ui.value + " hrs");
+			doHistGet(shelfIndices, url, "stock");
+		});
 	}
 });
 
@@ -88,8 +123,6 @@ var foreground = stockSVG.append("path")
 * Load & Monitor Data ---------------------------------------------------------
 */
 
-
-
 // Monitor datastreams for changes
 // Photo interrupter!
 setInterval( function() { getObs("stock") }, 5000);
@@ -106,10 +139,10 @@ setInterval(function () {
 	// Give each epoch an id based on the current time
 	newData["id"] = "t" + date.getHours() + checktime(date.getMinutes()) + checktime(date.getSeconds());
 	// Check all the active datastreams for observations that fall within the new epoch
-	propertyNames.forEach(function (entry, index, array) {
+	trafficPropertyNames.forEach(function (entry, index, array) {
 		// Get the shelf indices from shelfIndeces: s#s#
 		var shelfIndices = entry.split("s");
-		var url = createTimeQuery( shelfIndices[1], shelfIndices[2] );
+		var url = createTimeQuery( shelfIndices[1], shelfIndices[2], "motion", "active", 1 );
 		doTrafficGet(entry, url, newData);
 			
 	});
@@ -134,7 +167,55 @@ function doTrafficGet(sectionIndex, url, newData){
 				newData[sectionIndex] = 0;
 			}
 		});
-	
+}
+
+function doHistGet(sectionIndex, getURL, type){
+	$.ajax({
+		url: getURL,
+		type: 'get',
+		success: function ( data ) {
+			var nObs;
+			if('Observations' in data){
+				nObs = data.Observations.length;
+			} else {
+				nObs = 1;
+			}
+			console.log("n Obs: " + nObs);
+			if( type == "motion"){
+				displayHistTraffic(sectionIndex, nObs);
+			} else {
+				displayHistStock(sectionIndex, nObs);
+			}
+		},
+		error: function( req, textStatus, errorThrown ){
+			var nObs = 0;
+			console.log("n Obs: " + nObs);
+			if( type == "motion"){
+				displayHistTraffic(sectionIndex, nObs);
+			} else {
+				displayHistStock(sectionIndex, nObs);
+			}
+		}
+	});
+}
+
+function displayHistTraffic( indices, n ){
+	var color;
+	if( n == 0 ){
+		color = heatRamp[0];
+	} else {
+		color = heatRamp[Math.floor(n / 25) + 1];
+	}
+	storeHistSVG.select( "#heats" + indices[1] + "s" + indices[2])
+		.transition().duration(500)
+		.attr("opacity", 0.5)
+		.attr("fill", color);
+}
+
+function displayHistStock (indices, n ){
+	storeHistSVG.select( "#stockNs" + indices[1] + "s" + indices[2])
+		.transition().duration(500)
+		.text(n);
 }
 
 // Set up the URL to get the observations
@@ -143,14 +224,14 @@ function getObs(obsType) {
 	for( var i = 0; i < shelves.length; i++ )	{
 		for( var j = 0; j < shelves[i].sections.length; j++){
 			// Set the url depending on what type of observation it is
-			if (obsType == "motion"){ // PIR Motion sensor
-				var obsURL = shelves[i].sections[j].pirURL;
-			} else if (obsType == "stock"){ // Photo interrupter
-				var obsURL = shelves[i].sections[j].pintURL;
-			}
-
-			if( obsURL != null ){
-				// Pass the variables of the get to a function so that indices don't get borked
+			var obsURL;
+			if (obsType == "motion" && shelves[i].sections[j].pirURL != null){ // PIR Motion sensor
+				obsURL = createTimeQuery( i, j, "motion", "all", 60*24);
+				doGet(i,j, obsURL, obsType);
+			} else if (obsType == "stock" && shelves[i].sections[j].pintURL !=null){ // Photo interrupter
+				//var obsURL = shelves[i].sections[j].pintURL;
+				//obsURL = createTimeQuery( i, j, "stock", "all", 1);
+				obsURL = shelves[i].sections[j].pintURL;
 				doGet(i,j, obsURL, obsType);
 			}
 		}
@@ -173,7 +254,13 @@ function doGet(shelfInd, sectionInd, URL, type) {
 // Check what the value of the latest obs is and call the appropriate function to visualize it
 function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	newObs = obsJSON;
-	if( newObs.Observations[newObs.Observations.length - 1].ResultValue == 1 ){
+	var resultValue = 0;
+	if('Observations' in newObs){
+		resultValue = newObs.Observations[newObs.Observations.length - 1].ResultValue
+	} else {
+		resultValue = newObs.ResultValue;
+	}
+	if( resultValue == 1 ){
 		if( obsType == "stock"){
 			displayStock(shelfInd, sectionInd, shelves, 1);
 			shelves[shelfInd].sections[sectionInd].filled = false;
@@ -189,16 +276,48 @@ function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	oldObs = newObs;
 }
 
-function createTimeQuery ( shelfN, sectionN ){
-	var baseURL = shelves[shelfN].sections[sectionN].pirURL;
-	var filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+function createTimeQuery ( shelfN, sectionN, obsType, obsValues, nMinutes ){
+	var baseURL;
+	if(obsType == "motion"){
+		baseURL = shelves[shelfN].sections[sectionN].pirURL;
+	} else {
+		baseURL = shelves[shelfN].sections[sectionN].pintURL;
+	}
+
+	var filter1;
+	if(obsValues == "all"){
+		filter1 = "?$filter= Time ge STR_TO_DATE('";
+	} else {
+		filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+	}
 	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
 	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
 
 	var date = new Date();
 	var realMonth = date.getMonth() + 1;
 	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
-	var pastDate = new Date(date.getTime() - 1*60000);
+	var pastDate = new Date(date.getTime() - nMinutes*60000);
+	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
+
+	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
+}
+
+function createHistQuery ( shelfN, sectionN, obsType, nHours ){
+	var baseURL;
+	if(obsType == "motion"){
+		baseURL = shelves[shelfN].sections[sectionN].pirURL;
+	} else {
+		baseURL = shelves[shelfN].sections[sectionN].pintURL;
+	}
+
+	var	filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
+	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
+
+	var date = new Date();
+	var realMonth = date.getMonth() + 1;
+	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
+	var pastDate = new Date(date.getTime() - nHours * 60 * 60000);
 	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
 
 	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
@@ -218,7 +337,7 @@ function isOdd(num) {
 	return (num % 2) == 1;
 }
 
-function drawSections(shelfIndex, shelves, scale, delay){
+function drawSections(shelfIndex, shelves, scale, delay, svg){
 
 	var selector = ".shelf" + shelfIndex;
 
@@ -226,7 +345,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.domain([0, shelves[shelfIndex].sections.length])
 		.range([0,495]);
 
-	storeSVG.transition().selectAll(selector)
+	svg.transition().selectAll(selector)
 		.duration(500)
 		.attr("y", function(d,i) {
 			return sectionScale(i) + 5;
@@ -236,7 +355,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		});
 
 	// Add new sections
-	storeSVG.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
+	svg.selectAll(selector).data(shelves[shelfIndex].sections).enter().append("rect")
 		.attr("x", function () {
 			if( isOdd(shelfIndex) ){
 				return scale(shelfIndex) + 30;
@@ -258,6 +377,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.attr("id", function (d,i) {
 			return "shelf" + shelfIndex +"sect" + i;
 		})
+		// Display Tooltip
 		.on("mouseover", function (d) {
 			div.transition()
 				.duration(200)
@@ -282,6 +402,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 				.style("left", (d3.event.pageX) + "px")     
 				.style("top", (d3.event.pageY - 28) + "px");
 		})
+		// Fade in
 		.attr("opacity", 0)
 		.transition()
 		.delay(delay)
@@ -289,7 +410,7 @@ function drawSections(shelfIndex, shelves, scale, delay){
 		.duration(500);
 }
 
-function drawExisting(shelves, scale){
+function drawExisting(shelves, scale, svg, type){
 	if( isOdd(shelves.length) ){
 		domainSize = shelves.length / 2 + 1;
 	} else {
@@ -300,7 +421,7 @@ function drawExisting(shelves, scale){
 		.domain([0,domainSize])
 		.rangeRound([0,storeW/2]);
 
-	storeSVG.selectAll(".shelf").data(shelves).enter().append("rect")
+	svg.selectAll(".shelf").data(shelves).enter().append("rect")
 		.attr("x", storeW+100) // initialize out of frame, then slide in
 		.attr("y", strokePadding)
 		.attr("rx", 5)
@@ -325,12 +446,15 @@ function drawExisting(shelves, scale){
 		});
 
 	for(var index = 0; index < shelves.length; index++){
-		drawSections(index, shelves, scale, 500);
-		addHeat(index, shelves, scale);
+		drawSections(index, shelves, scale, 500, svg);
+		addHeat(index, shelves, scale, svg);
+		if( type == "hist"){
+			addStockNumber(index, shelves, scale, svg);
+		}
 	}
 }
 
-function addHeat( shelfInd, shelves, scale ) {
+function addHeat( shelfInd, shelves, scale, svg ) {
 	var sectionScale = d3.scale.linear()
 		.domain([0, shelves[shelfInd].sections.length])
 		.range([0,495]);
@@ -338,7 +462,7 @@ function addHeat( shelfInd, shelves, scale ) {
 	var heatWidth = (scale(1) - scale(0)) * 2 - 2 * 50;
 	var heatHeight = 495/shelves[shelfInd].sections.length - 5;
 
-	storeSVG.selectAll(".heat" + shelfInd).data(shelves[shelfInd].sections).enter().append("rect")
+	svg.selectAll(".heat" + shelfInd).data(shelves[shelfInd].sections).enter().append("rect")
 		.attr("x", function () {
 			if( isOdd(shelfInd) ){
 				return scale(shelfInd) + 75;
@@ -366,6 +490,42 @@ function addHeat( shelfInd, shelves, scale ) {
 		.attr("opacity", 0);
 }
 
+function addStockNumber( shelfInd, shelves, scale, svg ) {
+	var sectionScale = d3.scale.linear()
+		.domain([0, shelves[shelfInd].sections.length])
+		.range([0,495]);
+
+	var heatWidth = (scale(1) - scale(0)) * 2 - 2 * 50;
+	var heatHeight = 495/shelves[shelfInd].sections.length - 5;
+
+	var elem = svg.selectAll(".stockNs" + shelfInd).data(shelves[shelfInd].sections);
+
+	var elemEnter = elem.enter()
+	    .append("g");
+ 
+    /* Create the text for each block */
+    elemEnter.append("text")
+    	.attr("x", function () {
+			if( isOdd(shelfInd) ){
+				return scale(shelfInd) + 50;
+			} else {
+				return scale(shelfInd + 1);
+			}
+		})
+		.attr("y", function(d,i) {
+			return sectionScale(i) + heatHeight/2 + 6;
+		})
+	    .text(" ")
+		.attr("class", "stockLabel")
+		.attr("id", function (d,i) {
+			return "stockNs" + shelfInd + "s" + i;
+		})
+		.attr("fill", "#FFFFFF")
+		.attr("text-anchor", "middle")
+		.style("font-weight", "bold")
+		.attr("font-size", 18);
+}
+
 /**
 * Store viewer - Display Observations -----------------------------------------
 */
@@ -375,13 +535,13 @@ function displayStock(shelfInd, sectionInd, shelves, state){
 	var selector = "#shelf" + shelfInd + "sect" + sectionInd;
 	
 	if( state == 1){
-		storeSVG.transition().selectAll(selector)
+		storeRealSVG.transition().selectAll(selector)
 			.transition()
 			.attr("fill", "#991C3D")
 			.attr("value", 1)
 			.duration(500);
 	} else {
-		storeSVG.transition().selectAll(selector)
+		storeRealSVG.transition().selectAll(selector)
 			.transition()
 			.attr("fill", "#2E6E9E")
 			.attr("value", 0)
@@ -393,11 +553,11 @@ function displayStock(shelfInd, sectionInd, shelves, state){
 function displayMotion(shelfInd, sectionInd, shelves){
 	var selector = "#heats" + shelfInd + "s" + sectionInd;
 
-	storeSVG.selectAll(selector)
+	storeRealSVG.selectAll(selector)
 		.transition().duration(300)
 		.attr("opacity", 0.5);
 
-	storeSVG.selectAll(selector)
+	storeRealSVG.selectAll(selector)
 		.transition().delay(300).duration(12000)
 		.attr("opacity", 0);
 }
@@ -417,13 +577,19 @@ function displayStackedChart(chartId) {
 	.append("g").attr("class","barChart").attr("transform", "translate(0, " + trafficH + ")"); 
 }
 
-function getActiveSections( ) {
+function getActiveSections( obsType ) {
 	var propertyNames = [];
 	for ( var i = 0; i < shelves.length; i++){
-			for( var j=0; j < shelves.length; j++){
+			for( var j=0; j < shelves[i].sections.length; j++){
 				if( shelves[i].sections[j] !== undefined ){
-					if( shelves[i].sections[j].pirURL != null && shelves[i].sections[j].pirURL != ""){
-						propertyNames.push("s" + i + "s" + j);
+					if( obsType == "motion"){
+						if( shelves[i].sections[j].pirURL != null && shelves[i].sections[j].pirURL != ""){
+							propertyNames.push("s" + i + "s" + j);
+						}
+					} else {
+						if( shelves[i].sections[j].pintURL != null && shelves[i].sections[j].pintURL != ""){
+							propertyNames.push("s" + i + "s" + j);
+						}
 					}
 				}
 			}
@@ -442,15 +608,15 @@ function addData(chartId, data) {
 			.attr("id", chartId + "_" + data.id);
 
 	// now add each data point to the stack of this bar
-	for(index in propertyNames) {
+	for(index in trafficPropertyNames) {
 		barGroup.append("rect")
-			.attr("class", propertyNames[index])
+			.attr("class", trafficPropertyNames[index])
 			.attr("width", (barDimensions.barWidth-1)) 
 			.attr("x", function () { return (barDimensions.numBars-1) * barDimensions.barWidth;})
-			.attr("y", barY(data, propertyNames[index])) 
-			.attr("height", barHeight(data, propertyNames[index]))
+			.attr("y", barY(data, trafficPropertyNames[index])) 
+			.attr("height", barHeight(data, trafficPropertyNames[index]))
 			.attr("fill", "#555555")
-			.attr("value", data[propertyNames[index]] );
+			.attr("value", data[trafficPropertyNames[index]] );
 	}
 }
 
@@ -515,7 +681,7 @@ function barY(data, propertyOfDataToDisplay) {
 	// Determing the y coordinate to stack the newest bar onto
 	var baseline = 0;
 	for(var j=0; j < index; j++) {
-		baseline = baseline + data[propertyNames[j]];
+		baseline = baseline + data[trafficPropertyNames[j]];
 	}
 	// make the y value negative 'height' instead of 0 due to origin moved to bottom-left
 	var returnValue;
