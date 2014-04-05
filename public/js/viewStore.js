@@ -36,25 +36,24 @@ $.ajax({
 	} else {
 		shelves = [];
 	}
-	drawExisting(shelves, scale, storeRealSVG);
-	drawExisting(shelves, scale, storeHistSVG);
+	drawExisting(shelves, scale, storeRealSVG, "real");
+	drawExisting(shelves, scale, storeHistSVG, "hist");
 	trafficPropertyNames = getActiveSections( "motion" );
 	stockPropertyNames = getActiveSections( "stock" );
 	}
 });
 
 // Add slider for historic observations
-var heatRamp = ["#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
-var heatBuckets = [ 0, 25, 50, 75, 100, 125, 150, 175];
+var heatRamp = ["#FFFFFF", "#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
 
 $("#slider").slider({
-	value: 1,
-	min: 1,
+	value: 0,
+	min: 0,
 	max: 24,
 	step: 1,
 	animate: true,
 	slide: function( event, ui ) {
-		$( "#amount" ).text( ui.value + " h" );
+		$( "#amount" ).text( "Show past: " + ui.value + " h" );
 	},
 	stop: function( event, ui ){
 		trafficPropertyNames.forEach( function (entry) {
@@ -62,7 +61,6 @@ $("#slider").slider({
 			var url = createHistQuery( shelfIndices[1], shelfIndices[2], "motion", ui.value );
 			console.log("For motion in the past " + ui.value + " hrs");
 			doHistGet(shelfIndices, url, "motion");
-
 		});
 		stockPropertyNames.forEach( function (entry) {
 			var shelfIndices = entry.split("s");
@@ -183,21 +181,41 @@ function doHistGet(sectionIndex, getURL, type){
 				nObs = 1;
 			}
 			console.log("n Obs: " + nObs);
-			displayHistTraffic(sectionIndex, nObs);
+			if( type == "motion"){
+				displayHistTraffic(sectionIndex, nObs);
+			} else {
+				displayHistStock(sectionIndex, nObs);
+			}
 		},
 		error: function( req, textStatus, errorThrown ){
 			var nObs = 0;
 			console.log("n Obs: " + nObs);
+			if( type == "motion"){
+				displayHistTraffic(sectionIndex, nObs);
+			} else {
+				displayHistStock(sectionIndex, nObs);
+			}
 		}
 	});
 }
 
 function displayHistTraffic( indices, n ){
-	var color = heatRamp[Math.floor(n / 25)];
+	var color;
+	if( n == 0 ){
+		color = heatRamp[0];
+	} else {
+		color = heatRamp[Math.floor(n / 25) + 1];
+	}
 	storeHistSVG.select( "#heats" + indices[1] + "s" + indices[2])
 		.transition().duration(500)
 		.attr("opacity", 0.5)
 		.attr("fill", color);
+}
+
+function displayHistStock (indices, n ){
+	storeHistSVG.select( "#stockNs" + indices[1] + "s" + indices[2])
+		.transition().duration(500)
+		.text(n);
 }
 
 // Set up the URL to get the observations
@@ -208,20 +226,14 @@ function getObs(obsType) {
 			// Set the url depending on what type of observation it is
 			var obsURL;
 			if (obsType == "motion" && shelves[i].sections[j].pirURL != null){ // PIR Motion sensor
-				obsURL = createTimeQuery( i, j, "motion", "all", 1);
+				obsURL = createTimeQuery( i, j, "motion", "all", 60*24);
 				doGet(i,j, obsURL, obsType);
 			} else if (obsType == "stock" && shelves[i].sections[j].pintURL !=null){ // Photo interrupter
 				//var obsURL = shelves[i].sections[j].pintURL;
-				obsURL = createTimeQuery( i, j, "stock", "all", 1);
+				//obsURL = createTimeQuery( i, j, "stock", "all", 1);
+				obsURL = shelves[i].sections[j].pintURL;
 				doGet(i,j, obsURL, obsType);
 			}
-
-			/*
-			if( obsURL != null ){
-				// Pass the variables of the get to a function so that indices don't get borked
-				doGet(i,j, obsURL, obsType);
-			}
-			*/
 		}
 	}
 }
@@ -398,7 +410,7 @@ function drawSections(shelfIndex, shelves, scale, delay, svg){
 		.duration(500);
 }
 
-function drawExisting(shelves, scale, svg){
+function drawExisting(shelves, scale, svg, type){
 	if( isOdd(shelves.length) ){
 		domainSize = shelves.length / 2 + 1;
 	} else {
@@ -436,6 +448,9 @@ function drawExisting(shelves, scale, svg){
 	for(var index = 0; index < shelves.length; index++){
 		drawSections(index, shelves, scale, 500, svg);
 		addHeat(index, shelves, scale, svg);
+		if( type == "hist"){
+			addStockNumber(index, shelves, scale, svg);
+		}
 	}
 }
 
@@ -473,6 +488,42 @@ function addHeat( shelfInd, shelves, scale, svg ) {
 			return "heats" + shelfInd + "s" + i;
 		})
 		.attr("opacity", 0);
+}
+
+function addStockNumber( shelfInd, shelves, scale, svg ) {
+	var sectionScale = d3.scale.linear()
+		.domain([0, shelves[shelfInd].sections.length])
+		.range([0,495]);
+
+	var heatWidth = (scale(1) - scale(0)) * 2 - 2 * 50;
+	var heatHeight = 495/shelves[shelfInd].sections.length - 5;
+
+	var elem = svg.selectAll(".stockNs" + shelfInd).data(shelves[shelfInd].sections);
+
+	var elemEnter = elem.enter()
+	    .append("g");
+ 
+    /* Create the text for each block */
+    elemEnter.append("text")
+    	.attr("x", function () {
+			if( isOdd(shelfInd) ){
+				return scale(shelfInd) + 50;
+			} else {
+				return scale(shelfInd + 1);
+			}
+		})
+		.attr("y", function(d,i) {
+			return sectionScale(i) + heatHeight/2 + 6;
+		})
+	    .text(" ")
+		.attr("class", "stockLabel")
+		.attr("id", function (d,i) {
+			return "stockNs" + shelfInd + "s" + i;
+		})
+		.attr("fill", "#FFFFFF")
+		.attr("text-anchor", "middle")
+		.style("font-weight", "bold")
+		.attr("font-size", 18);
 }
 
 /**
