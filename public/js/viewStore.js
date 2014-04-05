@@ -15,6 +15,20 @@ var storeHistSVG = d3.select('#storeHist').append("svg")
 	.attr("width", storeW)
 	.attr("height", storeH);
 
+
+$( "#slider" ).slider({
+	value: 1,
+	min: 1,
+	max: 24,
+	step: 1,
+	animate: true,
+	slide: function( event, ui ) {
+		$( "#amount" ).text( ui.value + " h" );
+	}
+});
+
+//$( "#amount" ).val( $( "#slider" ).slider( "value" ) + " hrs" );
+
 // Create a dymanic scale which is updated when the shelves data is drawn
 var scale,
 	domainSize = 1,
@@ -92,8 +106,6 @@ var foreground = stockSVG.append("path")
 /**
 * Load & Monitor Data ---------------------------------------------------------
 */
-
-
 
 // Monitor datastreams for changes
 // Photo interrupter!
@@ -227,6 +239,27 @@ function createTimeQuery ( shelfN, sectionN, obsType, obsValues, nMinutes ){
 	var realMonth = date.getMonth() + 1;
 	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
 	var pastDate = new Date(date.getTime() - nMinutes*60000);
+	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
+
+	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
+}
+
+function createHistQuery ( shelfN, sectionN, obsType, nHours ){
+	var baseURL;
+	if(obsType == "motion"){
+		baseURL = shelves[shelfN].sections[sectionN].pirURL;
+	} else {
+		baseURL = shelves[shelfN].sections[sectionN].pintURL;
+	}
+
+	var	filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
+	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
+
+	var date = new Date();
+	var realMonth = date.getMonth() + 1;
+	var currentDateString = date.getFullYear() + "-" + realMonth + "-" + date.getDate() + "t" + date.getHours() + ":" + checktime(date.getMinutes()) + ":" + checktime(date.getSeconds()) + "-0600";
+	var pastDate = new Date(date.getTime() - nHours * 60 * 60000);
 	var pastDateString = pastDate.getFullYear() + "-" + realMonth + "-" + pastDate.getDate() + "t" + pastDate.getHours() + ":" + checktime(pastDate.getMinutes()) + ":" + checktime(pastDate.getSeconds()) + "-0600";
 
 	return baseURL + filter1 + pastDateString + filter2 + currentDateString + filter3;
