@@ -16,7 +16,7 @@ var storeHistSVG = d3.select('#storeHist').append("svg")
 	.attr("height", storeH);
 
 
-$( "#slider" ).slider({
+$("#slider").slider({
 	value: 1,
 	min: 1,
 	max: 24,
@@ -26,8 +26,6 @@ $( "#slider" ).slider({
 		$( "#amount" ).text( ui.value + " h" );
 	}
 });
-
-//$( "#amount" ).val( $( "#slider" ).slider( "value" ) + " hrs" );
 
 // Create a dymanic scale which is updated when the shelves data is drawn
 var scale,
