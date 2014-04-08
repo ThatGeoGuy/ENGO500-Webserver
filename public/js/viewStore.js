@@ -3,6 +3,14 @@ $(document).ready(function () {
 /**
 * Store viewer ----------------------------------------------------------------
 */
+
+// Heat Ramp for historical observations
+var heatRamp = ["#FFFFFF", "#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
+var heatScale = 50;
+
+// ceiling is the max # of observations that will be in a given time period
+var ceiling = 100;
+
 var storeW = 800,
 	storeH = 510,
 	strokePadding = 1;
@@ -44,8 +52,6 @@ $.ajax({
 });
 
 // Add slider for historic observations
-var heatRamp = ["#FFFFFF", "#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
-
 $("#slider").slider({
 	value: 0,
 	min: 0,
@@ -80,8 +86,6 @@ var oldObs = {"Observations" : []},
 var trafficW = 300,
 	trafficH = 200;
 
-// ceiling is the max # of observations that will be in a given time period
-var ceiling = 100;
 // Y scale will fit values from 0-10 within pixels 0 - height
 var y = d3.scale.linear().domain([0, ceiling]).range([0, trafficH]);
 
@@ -204,7 +208,11 @@ function displayHistTraffic( indices, n ){
 	if( n == 0 ){
 		color = heatRamp[0];
 	} else {
-		color = heatRamp[Math.floor(n / 25) + 1];
+		colorind = Math.floor(n / heatScale) + 1;
+		if(colorind > 8){
+			colorind = 8;
+		}
+		color = heatRamp[colorind];
 	}
 	storeHistSVG.select( "#heats" + indices[1] + "s" + indices[2])
 		.transition().duration(500)
