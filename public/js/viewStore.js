@@ -237,8 +237,6 @@ function getObs(obsType) {
 				obsURL = createTimeQuery( i, j, "motion", "all", 60*24);
 				doGet(i,j, obsURL, obsType);
 			} else if (obsType == "stock" && shelves[i].sections[j].pintURL !=null){ // Photo interrupter
-				//var obsURL = shelves[i].sections[j].pintURL;
-				//obsURL = createTimeQuery( i, j, "stock", "all", 1);
 				obsURL = shelves[i].sections[j].pintURL;
 				doGet(i,j, obsURL, obsType);
 			}
@@ -270,15 +268,15 @@ function checkObs (obsJSON, obsType, shelfInd, sectionInd) {
 	}
 	if( resultValue == 1 ){
 		if( obsType == "stock"){
-			displayStock(shelfInd, sectionInd, shelves, 1);
-			shelves[shelfInd].sections[sectionInd].filled = false;
+			displayStock(shelfInd, sectionInd, shelves, 0);
+			shelves[shelfInd].sections[sectionInd].filled = true;
 		} else if ( obsType == "motion" ){
 			displayMotion(shelfInd, sectionInd, shelves);
 		}
 	} else {
 		if( obsType == "stock"){
-			displayStock(shelfInd, sectionInd, shelves, 0);
-			shelves[shelfInd].sections[sectionInd].filled = true;
+			displayStock(shelfInd, sectionInd, shelves, 1);
+			shelves[shelfInd].sections[sectionInd].filled = false;
 		}
 	}
 	oldObs = newObs;
@@ -312,13 +310,16 @@ function createTimeQuery ( shelfN, sectionN, obsType, obsValues, nMinutes ){
 
 function createHistQuery ( shelfN, sectionN, obsType, nHours ){
 	var baseURL;
+	var valueToCheck;
 	if(obsType == "motion"){
 		baseURL = shelves[shelfN].sections[sectionN].pirURL;
+		valueToCheck = "1";
 	} else {
 		baseURL = shelves[shelfN].sections[sectionN].pintURL;
+		valueToCheck = "0";
 	}
 
-	var	filter1 = "?$filter= ResultValue eq '1' and Time ge STR_TO_DATE('";
+	var	filter1 = "?$filter= ResultValue eq '" + valueToCheck + "' and Time ge STR_TO_DATE('";
 	var filter2 = "','%Y-%m-%dt%H:%i:%s') and Time le STR_TO_DATE('";
 	var filter3 = "','%Y-%m-%dt%H:%i:%s')";
 
