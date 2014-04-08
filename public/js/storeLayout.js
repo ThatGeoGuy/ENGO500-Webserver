@@ -169,6 +169,7 @@ $(document).ready(function () {
 		}
 		// Remove svg
 		eraseShelves(shelves, scale);
+		$(activePanel).accordion("refresh");
 		$parentAccordion.accordion("refresh");
 	});
 
