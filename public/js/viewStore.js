@@ -204,7 +204,11 @@ function displayHistTraffic( indices, n ){
 	if( n == 0 ){
 		color = heatRamp[0];
 	} else {
-		color = heatRamp[Math.floor(n / 25) + 1];
+		colorind = Math.floor(n / 25) + 1;
+		if(colorind > 8){
+			colorind = 8;
+		}
+		color = heatRamp[colorind];
 	}
 	storeHistSVG.select( "#heats" + indices[1] + "s" + indices[2])
 		.transition().duration(500)
