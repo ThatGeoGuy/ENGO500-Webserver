@@ -23,6 +23,14 @@ var storeHistSVG = d3.select('#storeHist').append("svg")
 	.attr("width", storeW)
 	.attr("height", storeH);
 
+var legendRealSVG = d3.select('#legendReal').append("svg")
+	.attr("width", storeW)
+	.attr("height", 78);
+
+var legendHistSVG = d3.select('#legendHist').append("svg")
+	.attr("width", storeW)
+	.attr("height", 78);
+
 // Create a dymanic scale which is updated when the shelves data is drawn
 var scale,
 	domainSize = 1,
@@ -750,10 +758,98 @@ function arcTween(transition, newAngle) {
 }
 
 // Tooltip
-
 var div = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
 
+// Legend for Real time
+// Background
+legendRealSVG.append("rect")
+	.attr("x", 10)
+	.attr("rx", 4)
+	.attr("rx", 4)
+	.attr("width", 670)
+	.attr("height", 75)
+	.attr("fill", "#F4F4F4");
 
+addLegendElement( legendRealSVG, "#2E6E9E", 210, "Full", 1 );
+addLegendElement( legendRealSVG, "#991C3D", 670/3 + 210, "Empty", 1 );
+
+// Legend for Historical
+// Background
+legendHistSVG.append("rect")
+	.attr("x", 10)
+	.attr("rx", 4)
+	.attr("rx", 4)
+	.attr("width", 670)
+	.attr("height", 75)
+	.attr("fill", "#F4F4F4");
+
+var heatRamp = ["#FFFFFF", "#FFFF00", "#FFDD00", "#FFBB00", "#FF9900", "#FF7700", "#FF5500", "#FF3300", "#FF1100"];
+
+
+addLegendElement( legendHistSVG, heatRamp[1], 25, "0-50", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[2], 100, "50-100", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[3], 175, "100-150", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[4], 250, "150-200", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[5], 325, "200-250", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[6], 400, "250-300", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[7], 475, "300-350", 0.5 );
+addLegendElement( legendHistSVG, heatRamp[8], 550, "350-400", 0.5 );
+
+
+function addLegendElement ( SVG, color, x, labelText, opacity){
+	SVG.append("rect")
+	.attr("x", x)
+	.attr("rx", 5)
+	.attr("rx", 5)
+	.attr("y", 10)
+	.attr("width", 20)
+	.attr("height", 20)
+	.attr("fill", "#FFFFFF");
+
+	SVG.append("rect")
+	.attr("x", x)
+	.attr("rx", 5)
+	.attr("rx", 5)
+	.attr("y", 10)
+	.attr("width", 20)
+	.attr("height", 20)
+	.attr("opacity", opacity)
+	.attr("fill", color);
+
+	SVG.append("text")
+	.attr("x", x + 10)
+	.attr("y", 55)
+	.attr("text-anchor", "middle")
+	.text(labelText);
+}
+
+// Add legend element for empty-counter
+legendHistSVG.append("rect")
+	.attr("x", 635)
+	.attr("rx", 5)
+	.attr("rx", 5)
+	.attr("y", 10)
+	.attr("width", 20)
+	.attr("height", 20)
+	.attr("fill", "#2E6E9E");
+
+legendHistSVG.append("text")
+	.attr("x", 635 + 10)
+	.attr("y", 25)
+	.attr("text-anchor", "middle")
+	.attr("fill", "white")
+	.text("n");
+
+legendHistSVG.append("text")
+	.attr("x", 635 + 10)
+	.attr("y", 48)
+	.attr("text-anchor", "middle")
+	.text("emptied");
+legendHistSVG.append("text")
+	.attr("x", 635 + 10)
+	.attr("y", 63)
+	.attr("text-anchor", "middle")
+	.text("n times");
 }); // End Document Ready
