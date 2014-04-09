@@ -39,3 +39,7 @@ div.tooltip {
   width: 120px;
   float: right;
 }
+
+#statSpacer {
+  height: 83px;
+}
