@@ -242,10 +242,12 @@ function getObs(obsType) {
 			// Set the url depending on what type of observation it is
 			var obsURL;
 			if (obsType == "motion" && shelves[i].sections[j].pirURL != null){ // PIR Motion sensor
-				obsURL = createTimeQuery( i, j, "motion", "all", 60*24);
+				//obsURL = createTimeQuery( i, j, "motion", "all", 60*24);
+				obsURL = createTimeQuery( i, j, "motion", "all", 1);
 				doGet(i,j, obsURL, obsType);
 			} else if (obsType == "stock" && shelves[i].sections[j].pintURL !=null){ // Photo interrupter
 				obsURL = shelves[i].sections[j].pintURL;
+				//obsURL = createTimeQuery( i, j, "stock", "all", 1);
 				doGet(i,j, obsURL, obsType);
 			}
 		}
